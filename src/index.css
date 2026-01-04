@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-gradient: linear-gradient(135deg, #0d0d10 0%, #1a1a1f 50%, #0d0d10 100%);
+  --glow-volt: 0 0 40px rgba(0, 217, 78, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  color: #eeeef0;
+  font-family: 'Sora', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #41414b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5d5d6c;
+}
+
+/* Grid pattern background */
+.grid-pattern {
+  background-image: 
+    linear-gradient(rgba(100, 255, 154, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 255, 154, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Stat card glow effect */
+.stat-glow {
+  box-shadow: var(--glow-volt);
+  transition: box-shadow 0.3s ease;
+}
+
+.stat-glow:hover {
+  box-shadow: 0 0 60px rgba(0, 217, 78, 0.25);
+}
+
+/* Animated gradient border */
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, #00d94e, #00b33f, #008c34);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.gradient-border:hover::before {
+  opacity: 1;
+}
+
+/* Number formatting */
+.mono-nums {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
