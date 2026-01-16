@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { DenominationProvider, Denomination } from '../contexts/DenominationContext';
+import { DenominationProvider } from '../contexts/DenominationContext';
 import DenominationToggle from './DenominationToggle';
 
 function renderWithProvider() {
@@ -26,7 +26,7 @@ describe('DenominationToggle', () => {
   it('highlights sats button by default', () => {
     renderWithProvider();
     const satsButton = screen.getByText('sats');
-    expect(satsButton).toHaveClass('bg-volt-500');
+    expect(satsButton).toHaveClass('bg-boltz-primary');
   });
 
   it('switches to BTC when BTC button clicked', async () => {
@@ -37,8 +37,8 @@ describe('DenominationToggle', () => {
 
     const btcButton = screen.getByText('BTC');
     const satsButton = screen.getByText('sats');
-    expect(btcButton).toHaveClass('bg-volt-500');
-    expect(satsButton).not.toHaveClass('bg-volt-500');
+    expect(btcButton).toHaveClass('bg-boltz-primary');
+    expect(satsButton).not.toHaveClass('bg-boltz-primary');
   });
 
   it('switches back to sats when sats button clicked', async () => {
@@ -49,7 +49,7 @@ describe('DenominationToggle', () => {
     await user.click(screen.getByText('sats'));
 
     const satsButton = screen.getByText('sats');
-    expect(satsButton).toHaveClass('bg-volt-500');
+    expect(satsButton).toHaveClass('bg-boltz-primary');
   });
 
   it('persists selection to localStorage', async () => {

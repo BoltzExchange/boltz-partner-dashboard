@@ -13,7 +13,7 @@ import { useDenomination, Denomination } from '../contexts/DenominationContext';
 
 interface PerformanceChartProps {
   data: MonthlyStats[];
-  dataKey: 'volumeBtc' | 'tradeCount' | 'avgTradeSize';
+  dataKey: 'volumeBtc' | 'swapCount' | 'avgSwapSize';
   title: string;
 }
 
@@ -21,6 +21,15 @@ interface CustomTooltipProps extends TooltipProps<number, string> {
   dataKey: string;
   formatValue: (btc: number) => string;
   formatSats: (sats: number) => string;
+}
+
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function isCurrentMonth(month: string, year: number): boolean {
+  const now = new Date();
+  const currentMonthName = MONTH_NAMES[now.getMonth()];
+  const currentYear = now.getFullYear();
+  return month === currentMonthName && year === currentYear;
 }
 
 function CustomTooltip({ active, payload, label, dataKey, formatValue, formatSats }: CustomTooltipProps) {
@@ -32,31 +41,31 @@ function CustomTooltip({ active, payload, label, dataKey, formatValue, formatSat
     switch (dataKey) {
       case 'volumeBtc':
         return formatValue(data.volumeBtc);
-      case 'tradeCount':
-        return `${data.tradeCount.toLocaleString()} swaps`;
-      case 'avgTradeSize':
-        return formatSats(data.avgTradeSize);
+      case 'swapCount':
+        return `${data.swapCount.toLocaleString()} swaps`;
+      case 'avgSwapSize':
+        return formatSats(data.avgSwapSize);
       default:
         return String(payload[0].value);
     }
   };
 
   const getChangeValue = () => {
-    if (dataKey === 'avgTradeSize') return null; // No MoM change for avg trade size
-    return dataKey === 'volumeBtc' ? data.volumeChange : data.tradeChange;
+    if (dataKey === 'avgSwapSize') return null;
+    return dataKey === 'volumeBtc' ? data.volumeChange : data.swapChange;
   };
 
   const change = getChangeValue();
   
   return (
-    <div className="bg-night-900 border border-night-700 rounded-xl p-4 shadow-xl">
-      <p className="text-night-300 text-sm mb-2">{label} {data.year}</p>
+    <div className="bg-navy-700 border border-navy-400 rounded-xl p-4 shadow-xl">
+      <p className="text-text-secondary text-sm mb-2">{label} {data.year}</p>
       <div className="space-y-1">
-        <p className="text-night-100 font-semibold mono-nums">
+        <p className="text-text-primary font-semibold mono-nums">
           {getFormattedValue()}
         </p>
         {change !== undefined && change !== null && (
-          <p className={`text-sm ${change >= 0 ? 'text-volt-400' : 'text-red-400'}`}>
+          <p className={`text-sm ${change >= 0 ? 'text-boltz-primary' : 'text-red-400'}`}>
             {change >= 0 ? '+' : ''}{change.toFixed(1)}% from prev
           </p>
         )}
@@ -68,11 +77,26 @@ function CustomTooltip({ active, payload, label, dataKey, formatValue, formatSat
 export default function PerformanceChart({ data, dataKey, title }: PerformanceChartProps) {
   const { denomination, formatValue, formatSats } = useDenomination();
   
-  const chartData = data.map(item => ({
-    ...item,
-    label: `${item.month} ${item.year}`,
-    volumeDisplay: denomination === Denomination.SAT ? item.volumeBtc * 100_000_000 : item.volumeBtc,
-  }));
+  const currentMonthIndex = data.findIndex(item => isCurrentMonth(item.month, item.year));
+  const hasCurrentMonth = currentMonthIndex >= 0;
+  
+  const chartData = data.map((item, index) => {
+    const baseValue = dataKey === 'volumeBtc' && denomination === Denomination.SAT 
+      ? item.volumeBtc * 100_000_000 
+      : item[dataKey];
+    
+    const isCurrent = isCurrentMonth(item.month, item.year);
+    const isPrevToCurrent = hasCurrentMonth && index === currentMonthIndex - 1;
+    
+    return {
+      ...item,
+      label: `${item.month} ${item.year}`,
+      volumeDisplay: denomination === Denomination.SAT ? item.volumeBtc * 100_000_000 : item.volumeBtc,
+      isCurrentMonth: isCurrent,
+      solidValue: !hasCurrentMonth || index < currentMonthIndex ? baseValue : (isPrevToCurrent ? baseValue : null),
+      dashedValue: isCurrent || isPrevToCurrent ? baseValue : null,
+    };
+  });
 
   const formatYAxis = (value: number) => {
     switch (dataKey) {
@@ -84,9 +108,9 @@ export default function PerformanceChart({ data, dataKey, title }: PerformanceCh
           return value.toLocaleString();
         }
         return `${value.toFixed(2)}`;
-      case 'tradeCount':
+      case 'swapCount':
         return value.toLocaleString();
-      case 'avgTradeSize':
+      case 'avgSwapSize':
         if (denomination === Denomination.BTC) {
           const btc = value / 100_000_000;
           return btc.toFixed(4);
@@ -99,45 +123,49 @@ export default function PerformanceChart({ data, dataKey, title }: PerformanceCh
     }
   };
 
-  // Use different colors for efficiency chart
-  const isEfficiencyChart = dataKey === 'avgTradeSize';
-  const strokeColor = isEfficiencyChart ? '#f59e0b' : '#00d94e';
-  const gradientId = isEfficiencyChart ? 'colorGradientAmber' : 'colorGradient';
-
-  const actualDataKey = dataKey === 'volumeBtc' && denomination === Denomination.SAT 
-    ? 'volumeDisplay' 
-    : dataKey;
+  const isEfficiencyChart = dataKey === 'avgSwapSize';
+  const strokeColor = isEfficiencyChart ? '#4fadc2' : '#e8cb2b';
+  const gradientId = isEfficiencyChart ? 'colorGradientCyan' : 'colorGradientGold';
+  const dashedGradientId = isEfficiencyChart ? 'colorGradientCyanDashed' : 'colorGradientGoldDashed';
 
   return (
-    <div className="bg-night-900/60 backdrop-blur-sm border border-night-800 rounded-2xl p-6">
-      <h3 className="text-lg font-semibold text-night-100 mb-6">{title}</h3>
+    <div className="bg-navy-600/60 backdrop-blur-sm border border-navy-400/50 rounded-2xl p-6 stat-glow">
+      <h3 className="text-lg font-semibold text-text-primary mb-6">{title}</h3>
       
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
-              <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#00d94e" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#00d94e" stopOpacity={0} />
+              <linearGradient id="colorGradientGold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#e8cb2b" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#e8cb2b" stopOpacity={0} />
               </linearGradient>
-              <linearGradient id="colorGradientAmber" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+              <linearGradient id="colorGradientCyan" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#4fadc2" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#4fadc2" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="colorGradientGoldDashed" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#727e8c" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#727e8c" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="colorGradientCyanDashed" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#727e8c" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#727e8c" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid 
               strokeDasharray="3 3" 
-              stroke="#41414b" 
+              stroke="#1e2d3c" 
               vertical={false}
             />
             <XAxis 
               dataKey="label" 
-              tick={{ fill: '#91919f', fontSize: 12 }}
+              tick={{ fill: '#727e8c', fontSize: 12 }}
               tickLine={false}
-              axisLine={{ stroke: '#41414b' }}
+              axisLine={{ stroke: '#1e2d3c' }}
             />
             <YAxis 
-              tick={{ fill: '#91919f', fontSize: 12 }}
+              tick={{ fill: '#727e8c', fontSize: 12 }}
               tickLine={false}
               axisLine={false}
               tickFormatter={formatYAxis}
@@ -153,13 +181,51 @@ export default function PerformanceChart({ data, dataKey, title }: PerformanceCh
             />
             <Area
               type="monotone"
-              dataKey={actualDataKey}
+              dataKey="solidValue"
               stroke={strokeColor}
               strokeWidth={2}
               fill={`url(#${gradientId})`}
               dot={{ fill: strokeColor, strokeWidth: 0, r: 4 }}
-              activeDot={{ fill: strokeColor, strokeWidth: 2, stroke: '#0d0d10', r: 6 }}
+              activeDot={{ fill: strokeColor, strokeWidth: 2, stroke: '#091625', r: 6 }}
+              connectNulls={false}
             />
+            {hasCurrentMonth && (
+              <Area
+                type="monotone"
+                dataKey="dashedValue"
+                stroke="#727e8c"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                fill={`url(#${dashedGradientId})`}
+                dot={(props: { cx?: number; cy?: number; payload?: { isCurrentMonth?: boolean } }) => {
+                  if (!props.payload?.isCurrentMonth) return <g key={`dot-hidden-${props.cx}`} />;
+                  return (
+                    <circle
+                      key={`dot-current-${props.cx}`}
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={4}
+                      fill="#727e8c"
+                    />
+                  );
+                }}
+                activeDot={(props: { cx?: number; cy?: number; payload?: { isCurrentMonth?: boolean } }) => {
+                  if (!props.payload?.isCurrentMonth) return <g key={`activedot-hidden-${props.cx}`} />;
+                  return (
+                    <circle
+                      key={`activedot-current-${props.cx}`}
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={6}
+                      fill="#727e8c"
+                      stroke="#091625"
+                      strokeWidth={2}
+                    />
+                  );
+                }}
+                connectNulls={false}
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       </div>

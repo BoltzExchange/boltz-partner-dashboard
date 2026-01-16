@@ -6,29 +6,30 @@ interface StatsCardProps {
   value: string;
   subtitle?: string;
   change?: number;
+  showChange?: boolean;
   icon: ReactNode;
   delay?: number;
 }
 
-export default function StatsCard({ title, value, subtitle, change, icon, delay = 0 }: StatsCardProps) {
+export default function StatsCard({ title, value, subtitle, change, showChange = true, icon, delay = 0 }: StatsCardProps) {
   const hasPositiveChange = change !== undefined && change > 0;
   const hasNegativeChange = change !== undefined && change < 0;
 
   return (
     <div 
-      className="bg-night-900/60 backdrop-blur-sm border border-night-800 rounded-2xl p-6 
-                 stat-glow gradient-border animate-slide-up"
+      className="bg-navy-600/60 backdrop-blur-sm border border-navy-400/50 rounded-2xl p-6 
+                 stat-glow animate-slide-up"
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start justify-between mb-4">
-        <div className="p-2.5 rounded-xl bg-volt-500/10 border border-volt-500/20">
+        <div className="p-2.5 rounded-xl bg-boltz-primary/10 border border-boltz-primary/20">
           {icon}
         </div>
-        {change !== undefined && (
+        {showChange && change !== undefined && (
           <div className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg
-            ${hasPositiveChange ? 'text-volt-400 bg-volt-500/10' : ''}
+            ${hasPositiveChange ? 'text-boltz-primary bg-boltz-primary/10' : ''}
             ${hasNegativeChange ? 'text-red-400 bg-red-500/10' : ''}
-            ${!hasPositiveChange && !hasNegativeChange ? 'text-night-400 bg-night-800' : ''}
+            ${!hasPositiveChange && !hasNegativeChange ? 'text-text-muted bg-navy-400' : ''}
           `}>
             {hasPositiveChange && <TrendingUp className="w-3.5 h-3.5" />}
             {hasNegativeChange && <TrendingDown className="w-3.5 h-3.5" />}
@@ -38,13 +39,12 @@ export default function StatsCard({ title, value, subtitle, change, icon, delay 
       </div>
 
       <div className="space-y-1">
-        <p className="text-night-400 text-sm font-medium">{title}</p>
-        <p className="text-3xl font-semibold text-night-100 mono-nums">{value}</p>
+        <p className="text-text-secondary text-sm font-medium">{title}</p>
+        <p className="text-3xl font-semibold text-text-primary mono-nums">{value}</p>
         {subtitle && (
-          <p className="text-night-500 text-sm">{subtitle}</p>
+          <p className="text-text-muted text-sm">{subtitle}</p>
         )}
       </div>
     </div>
   );
 }
-

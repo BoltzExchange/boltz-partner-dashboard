@@ -118,34 +118,30 @@ function processStatsData(statsData: BoltzStatsData): ReferralStats {
   
   const monthlyData: MonthlyStats[] = [];
   
-  // Process the nested year/month structure
   Object.entries(statsData).forEach(([year, yearData]) => {
     Object.entries(yearData).forEach(([month, monthData]) => {
       const yearNum = parseInt(year);
       const monthNum = parseInt(month);
       
-      // Extract volume and trades
       const volumeBtc = parseFloat(monthData.volume?.total || '0');
-      const tradeCount = monthData.trades?.total || 0;
+      const swapCount = monthData.trades?.total || 0;
       
-      if (tradeCount > 0 || volumeBtc > 0) {
-        const avgTradeSize = tradeCount > 0 
-          ? Math.round((volumeBtc * 100_000_000) / tradeCount) 
+      if (swapCount > 0 || volumeBtc > 0) {
+        const avgSwapSize = swapCount > 0 
+          ? Math.round((volumeBtc * 100_000_000) / swapCount) 
           : 0;
         
         monthlyData.push({
           month: getMonthName(monthNum),
           year: yearNum,
           volumeBtc,
-          tradeCount,
-          avgTradeSize,
-          feesEarnedSats: calculateFees(volumeBtc * 100_000_000),
+          swapCount,
+          avgSwapSize,
         });
       }
     });
   });
   
-  // Sort by date
   monthlyData.sort((a, b) => {
     if (a.year !== b.year) return a.year - b.year;
     return getMonthIndex(a.month) - getMonthIndex(b.month);
@@ -153,27 +149,24 @@ function processStatsData(statsData: BoltzStatsData): ReferralStats {
   
   console.log('Processed monthly data:', monthlyData);
   
-  // Calculate month-over-month changes
   for (let i = 1; i < monthlyData.length; i++) {
     const prev = monthlyData[i - 1];
     monthlyData[i].volumeChange = prev.volumeBtc > 0 
       ? ((monthlyData[i].volumeBtc - prev.volumeBtc) / prev.volumeBtc) * 100 
       : 0;
-    monthlyData[i].tradeChange = prev.tradeCount > 0 
-      ? ((monthlyData[i].tradeCount - prev.tradeCount) / prev.tradeCount) * 100 
+    monthlyData[i].swapChange = prev.swapCount > 0 
+      ? ((monthlyData[i].swapCount - prev.swapCount) / prev.swapCount) * 100 
       : 0;
   }
   
-  // Calculate all-time stats
   const allTime = {
     volumeBtc: monthlyData.reduce((sum, m) => sum + m.volumeBtc, 0),
-    tradeCount: monthlyData.reduce((sum, m) => sum + m.tradeCount, 0),
-    avgTradeSize: 0,
-    feesEarnedSats: monthlyData.reduce((sum, m) => sum + m.feesEarnedSats, 0),
+    swapCount: monthlyData.reduce((sum, m) => sum + m.swapCount, 0),
+    avgSwapSize: 0,
   };
   
-  allTime.avgTradeSize = allTime.tradeCount > 0 
-    ? Math.round((allTime.volumeBtc * 100_000_000) / allTime.tradeCount) 
+  allTime.avgSwapSize = allTime.swapCount > 0 
+    ? Math.round((allTime.volumeBtc * 100_000_000) / allTime.swapCount) 
     : 0;
   
   console.log('All-time stats:', allTime);
@@ -189,9 +182,4 @@ function getMonthName(month: number): string {
 function getMonthIndex(monthName: string): number {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   return months.indexOf(monthName);
-}
-
-function calculateFees(volumeSats: number): number {
-  // Assuming 0.1% fee share for partners
-  return Math.round(volumeSats * 0.001);
 }

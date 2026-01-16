@@ -8,9 +8,8 @@ export interface Partner {
 export interface ReferralStats {
   allTime: {
     volumeBtc: number;
-    tradeCount: number;
-    avgTradeSize: number;
-    feesEarnedSats: number;
+    swapCount: number;
+    avgSwapSize: number;
   };
   monthly: MonthlyStats[];
 }
@@ -19,11 +18,10 @@ export interface MonthlyStats {
   month: string;
   year: number;
   volumeBtc: number;
-  tradeCount: number;
-  avgTradeSize: number;
-  feesEarnedSats: number;
+  swapCount: number;
+  avgSwapSize: number;
   volumeChange?: number;
-  tradeChange?: number;
+  swapChange?: number;
 }
 
 export interface SwapStats {

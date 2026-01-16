@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Partner, AuthState } from '../types';
 import { validateCredentials } from '../services/boltzApi';
 

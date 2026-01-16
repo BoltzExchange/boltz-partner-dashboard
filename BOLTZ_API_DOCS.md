@@ -1,4 +1,4 @@
-# Boltz Exchange API Documentation
+# Boltz API Documentation
 
 ## Partner Referral Stats Endpoint
 
@@ -255,6 +255,4 @@ Returns general information about your referral program.
 
 **API Version**: v2
 
-**Documentation**: https://docs.boltz.exchange (if available)
-
-**Support**: Contact Boltz Exchange team for API credentials
+**Documentation**: https://docs.boltz.exchange

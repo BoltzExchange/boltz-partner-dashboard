@@ -5,15 +5,15 @@ export default function DenominationToggle() {
 
   return (
     <div 
-      className="flex items-center bg-night-800 rounded-lg p-0.5"
+      className="flex items-center bg-navy-400 rounded-lg p-0.5"
       title="Toggle denomination"
     >
       <button
         onClick={() => setDenomination(Denomination.BTC)}
         className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
           denomination === Denomination.BTC
-            ? 'bg-volt-500 text-night-950'
-            : 'text-night-400 hover:text-night-200'
+            ? 'bg-boltz-primary text-navy-700'
+            : 'text-text-secondary hover:text-text-primary'
         }`}
       >
         BTC
@@ -22,8 +22,8 @@ export default function DenominationToggle() {
         onClick={() => setDenomination(Denomination.SAT)}
         className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
           denomination === Denomination.SAT
-            ? 'bg-volt-500 text-night-950'
-            : 'text-night-400 hover:text-night-200'
+            ? 'bg-boltz-primary text-navy-700'
+            : 'text-text-secondary hover:text-text-primary'
         }`}
       >
         sats

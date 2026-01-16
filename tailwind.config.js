@@ -7,36 +7,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        night: {
-          50: '#f7f7f8',
-          100: '#eeeef0',
-          200: '#d9d9de',
-          300: '#b8b8c1',
-          400: '#91919f',
-          500: '#737384',
-          600: '#5d5d6c',
-          700: '#4c4c58',
-          800: '#41414b',
-          900: '#1a1a1f',
-          950: '#0d0d10',
+        boltz: {
+          primary: '#e8cb2b',
+          'primary-light': '#fee86b',
+          'primary-glow': 'rgba(232, 203, 43, 0.4)',
+          link: '#4fadc2',
+          'link-hover': '#70cde2',
         },
-        volt: {
-          50: '#f0fff4',
-          100: '#d1ffe0',
-          200: '#a6ffc5',
-          300: '#64ff9a',
-          400: '#21f56d',
-          500: '#00d94e',
-          600: '#00b33f',
-          700: '#008c34',
-          800: '#066e2c',
-          900: '#085a26',
-          950: '#003313',
+        navy: {
+          50: '#d0d4d9',
+          100: '#a1a9b2',
+          200: '#727e8c',
+          300: '#1e2d3c',
+          400: '#17222e',
+          500: '#12253a',
+          600: '#0f1f30',
+          700: '#091625',
+          800: '#09141f',
+          900: '#081E36',
+        },
+        text: {
+          primary: '#d7dee4',
+          secondary: '#a1a9b2',
+          muted: '#727e8c',
         }
       },
       fontFamily: {
-        sans: ['Sora', 'system-ui', 'sans-serif'],
-        mono: ['IBM Plex Mono', 'monospace'],
+        sans: ['"Noto Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"Noto Mono"', 'monospace'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out forwards',
@@ -57,8 +55,12 @@ export default {
           '50%': { opacity: '0.7' },
         },
       },
+      borderRadius: {
+        'sm': '8px',
+        'md': '12px',
+        'lg': '16px',
+      }
     },
   },
   plugins: [],
 }
-

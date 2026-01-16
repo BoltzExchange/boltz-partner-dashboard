@@ -1,6 +1,6 @@
 # Boltz Partner Dashboard
 
-A self-service dashboard for Boltz Exchange partners to view their referral performance metrics.
+A self-service dashboard for Boltz partners to view their referral performance metrics.
 
 ## Features
 
@@ -37,7 +37,7 @@ npm run build
 
 ## How It Works
 
-Partners log in using their Boltz referral ID. The dashboard fetches their stats directly from the Boltz Exchange API (`https://api.boltz.exchange/v2/referral/{id}/stats`) and displays:
+Partners log in using their Boltz referral ID. The dashboard fetches their stats directly from the Boltz API (`https://api.boltz.exchange/v2/referral/{id}/stats`) and displays:
 
 - **Total Volume** - All-time trading volume in BTC
 - **Total Trades** - Number of completed swaps
@@ -60,5 +60,5 @@ Partners log in using their Boltz referral ID. The dashboard fetches their stats
 
 ---
 
-Built for Boltz Exchange Partner Program
+Boltz Partner Program
 
