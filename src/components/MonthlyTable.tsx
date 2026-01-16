@@ -1,5 +1,6 @@
 import { MonthlyStats } from '../types';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useDenomination } from '../contexts/DenominationContext';
 
 interface MonthlyTableProps {
   data: MonthlyStats[];
@@ -26,6 +27,7 @@ function ChangeIndicator({ value }: { value?: number }) {
 }
 
 export default function MonthlyTable({ data }: MonthlyTableProps) {
+  const { formatValue, formatSats } = useDenomination();
   // Show data in reverse chronological order
   const sortedData = [...data].reverse();
 
@@ -48,7 +50,7 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
             </tr>
           </thead>
           <tbody>
-            {sortedData.map((month, index) => (
+            {sortedData.map((month) => (
               <tr 
                 key={`${month.month}-${month.year}`}
                 className="border-t border-night-800/50 hover:bg-night-800/30 transition-colors"
@@ -60,7 +62,7 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <span className="text-night-100 font-semibold mono-nums">
-                    {month.volumeBtc.toFixed(4)} BTC
+                    {formatValue(month.volumeBtc)}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">
@@ -76,7 +78,7 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <span className="text-night-300 mono-nums">
-                    {month.avgTradeSize.toLocaleString()} sats
+                    {formatSats(month.avgTradeSize)}
                   </span>
                 </td>
               </tr>

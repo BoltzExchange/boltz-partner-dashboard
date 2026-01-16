@@ -9,6 +9,7 @@ import {
   TooltipProps,
 } from 'recharts';
 import { MonthlyStats } from '../types';
+import { useDenomination, Denomination } from '../contexts/DenominationContext';
 
 interface PerformanceChartProps {
   data: MonthlyStats[];
@@ -16,19 +17,25 @@ interface PerformanceChartProps {
   title: string;
 }
 
-function CustomTooltip({ active, payload, label, dataKey }: TooltipProps<number, string> & { dataKey: string }) {
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  dataKey: string;
+  formatValue: (btc: number) => string;
+  formatSats: (sats: number) => string;
+}
+
+function CustomTooltip({ active, payload, label, dataKey, formatValue, formatSats }: CustomTooltipProps) {
   if (!active || !payload || !payload.length) return null;
 
   const data = payload[0].payload as MonthlyStats;
   
-  const formatValue = () => {
+  const getFormattedValue = () => {
     switch (dataKey) {
       case 'volumeBtc':
-        return `${data.volumeBtc.toFixed(4)} BTC`;
+        return formatValue(data.volumeBtc);
       case 'tradeCount':
         return `${data.tradeCount.toLocaleString()} swaps`;
       case 'avgTradeSize':
-        return `${data.avgTradeSize.toLocaleString()} sats`;
+        return formatSats(data.avgTradeSize);
       default:
         return String(payload[0].value);
     }
@@ -46,7 +53,7 @@ function CustomTooltip({ active, payload, label, dataKey }: TooltipProps<number,
       <p className="text-night-300 text-sm mb-2">{label} {data.year}</p>
       <div className="space-y-1">
         <p className="text-night-100 font-semibold mono-nums">
-          {formatValue()}
+          {getFormattedValue()}
         </p>
         {change !== undefined && change !== null && (
           <p className={`text-sm ${change >= 0 ? 'text-volt-400' : 'text-red-400'}`}>
@@ -59,18 +66,31 @@ function CustomTooltip({ active, payload, label, dataKey }: TooltipProps<number,
 }
 
 export default function PerformanceChart({ data, dataKey, title }: PerformanceChartProps) {
+  const { denomination, formatValue, formatSats } = useDenomination();
+  
   const chartData = data.map(item => ({
     ...item,
     label: `${item.month} ${item.year}`,
+    volumeDisplay: denomination === Denomination.SAT ? item.volumeBtc * 100_000_000 : item.volumeBtc,
   }));
 
   const formatYAxis = (value: number) => {
     switch (dataKey) {
       case 'volumeBtc':
-        return `${value.toFixed(1)}`;
+        if (denomination === Denomination.SAT) {
+          if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)}B`;
+          if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+          if (value >= 1_000) return `${(value / 1_000).toFixed(0)}k`;
+          return value.toLocaleString();
+        }
+        return `${value.toFixed(2)}`;
       case 'tradeCount':
         return value.toLocaleString();
       case 'avgTradeSize':
+        if (denomination === Denomination.BTC) {
+          const btc = value / 100_000_000;
+          return btc.toFixed(4);
+        }
         if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
         if (value >= 1000) return `${(value / 1000).toFixed(0)}k`;
         return value.toLocaleString();
@@ -83,6 +103,10 @@ export default function PerformanceChart({ data, dataKey, title }: PerformanceCh
   const isEfficiencyChart = dataKey === 'avgTradeSize';
   const strokeColor = isEfficiencyChart ? '#f59e0b' : '#00d94e';
   const gradientId = isEfficiencyChart ? 'colorGradientAmber' : 'colorGradient';
+
+  const actualDataKey = dataKey === 'volumeBtc' && denomination === Denomination.SAT 
+    ? 'volumeDisplay' 
+    : dataKey;
 
   return (
     <div className="bg-night-900/60 backdrop-blur-sm border border-night-800 rounded-2xl p-6">
@@ -118,10 +142,18 @@ export default function PerformanceChart({ data, dataKey, title }: PerformanceCh
               axisLine={false}
               tickFormatter={formatYAxis}
             />
-            <Tooltip content={<CustomTooltip dataKey={dataKey} />} />
+            <Tooltip 
+              content={
+                <CustomTooltip 
+                  dataKey={dataKey} 
+                  formatValue={formatValue} 
+                  formatSats={formatSats} 
+                />
+              } 
+            />
             <Area
               type="monotone"
-              dataKey={dataKey}
+              dataKey={actualDataKey}
               stroke={strokeColor}
               strokeWidth={2}
               fill={`url(#${gradientId})`}

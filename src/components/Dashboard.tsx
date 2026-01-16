@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useDenomination, Denomination } from '../contexts/DenominationContext';
 import { fetchReferralStatsAuthenticated } from '../services/boltzApi';
 import { ReferralStats } from '../types';
 import StatsCard from './StatsCard';
 import PerformanceChart from './PerformanceChart';
 import MonthlyTable from './MonthlyTable';
+import DenominationToggle from './DenominationToggle';
 import { 
   Zap, 
   TrendingUp, 
@@ -17,6 +19,7 @@ import {
 
 export default function Dashboard() {
   const { partner, logout } = useAuth();
+  const { denomination, formatValue, formatSats } = useDenomination();
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,11 +48,6 @@ export default function Dashboard() {
   useEffect(() => {
     loadStats();
   }, [partner]);
-
-  const formatBtc = (btc: number) => {
-    if (btc >= 1) return `${btc.toFixed(2)} BTC`;
-    return `${(btc * 100_000_000).toLocaleString()} sats`;
-  };
 
   const getLastMonthChange = () => {
     if (!stats || stats.monthly.length < 2) return undefined;
@@ -112,6 +110,7 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center gap-3">
+              <DenominationToggle />
               <button
                 onClick={() => loadStats(true)}
                 disabled={isRefreshing}
@@ -140,7 +139,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
             title="Total Volume"
-            value={formatBtc(stats?.allTime.volumeBtc || 0)}
+            value={formatValue(stats?.allTime.volumeBtc || 0)}
             subtitle="All-time trading volume"
             change={getLastMonthChange()}
             icon={<TrendingUp className="w-5 h-5 text-volt-400" />}
@@ -155,14 +154,14 @@ export default function Dashboard() {
           />
           <StatsCard
             title="Average Trade"
-            value={`${(stats?.allTime.avgTradeSize || 0).toLocaleString()} sats`}
+            value={formatSats(stats?.allTime.avgTradeSize || 0)}
             subtitle="Per transaction"
             icon={<Coins className="w-5 h-5 text-volt-400" />}
             delay={100}
           />
           <StatsCard
             title="Est. Fees Earned"
-            value={`${((stats?.allTime.feesEarnedSats || 0) / 100_000_000).toFixed(6)} BTC`}
+            value={formatSats(stats?.allTime.feesEarnedSats || 0)}
             subtitle="Partner revenue share"
             icon={<Zap className="w-5 h-5 text-volt-400" />}
             delay={150}
@@ -176,7 +175,7 @@ export default function Dashboard() {
               <PerformanceChart
                 data={stats.monthly}
                 dataKey="volumeBtc"
-                title="Volume Over Time (BTC)"
+                title={`Volume Over Time (${denomination === Denomination.BTC ? 'BTC' : 'sats'})`}
               />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -188,7 +187,7 @@ export default function Dashboard() {
               <PerformanceChart
                 data={stats.monthly}
                 dataKey="avgTradeSize"
-                title="Average Trade Size (sats)"
+                title={`Average Trade Size (${denomination === Denomination.BTC ? 'BTC' : 'sats'})`}
               />
             </div>
           </>
