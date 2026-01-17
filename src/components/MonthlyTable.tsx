@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MonthlyStats } from '../types';
 import { TrendingUp, TrendingDown, ChevronUp, ChevronDown } from 'lucide-react';
 import { useDenomination } from '../contexts/DenominationContext';
+import { t } from '../i18n';
 
 interface MonthlyTableProps {
   data: MonthlyStats[];
@@ -23,20 +24,25 @@ function getMonthIndex(month: string): number {
   return MONTH_NAMES.indexOf(month);
 }
 
-function ChangeIndicator({ value }: { value?: number }) {
+function ChangeIndicator({ value, muted = false }: { value?: number; muted?: boolean }) {
+  const strings = t();
   if (value === undefined) {
-    return <span className="text-sm font-medium text-text-muted">0%</span>;
+    return <span className="text-sm font-medium text-text-muted">{strings.format.percentZero}</span>;
   }
   
   const isPositive = value > 0;
   const isNegative = value < 0;
   
+  const colorClass = muted 
+    ? 'text-text-muted' 
+    : isPositive 
+      ? 'text-boltz-primary' 
+      : isNegative 
+        ? 'text-red-400' 
+        : 'text-text-muted';
+  
   return (
-    <span className={`inline-flex items-center gap-1 text-sm font-medium
-      ${isPositive ? 'text-boltz-primary' : ''}
-      ${isNegative ? 'text-red-400' : ''}
-      ${!isPositive && !isNegative ? 'text-text-muted' : ''}
-    `}>
+    <span className={`inline-flex items-center gap-1 text-sm font-medium ${colorClass}`}>
       {isPositive && <TrendingUp className="w-3.5 h-3.5" />}
       {isNegative && <TrendingDown className="w-3.5 h-3.5" />}
       {isPositive && '+'}
@@ -80,6 +86,7 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
   const { formatValue, formatSats } = useDenomination();
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const strings = t();
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -122,7 +129,7 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
   return (
     <div className="bg-navy-600/60 backdrop-blur-sm border border-text-muted/20 rounded-2xl overflow-hidden stat-glow">
       <div className="p-6 border-b border-text-muted/20">
-        <h3 className="text-lg font-semibold text-text-primary">Monthly Breakdown</h3>
+        <h3 className="text-lg font-semibold text-text-primary">{strings.table.monthlyBreakdown}</h3>
       </div>
       
       <div className="overflow-x-auto">
@@ -138,7 +145,7 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
           <thead>
             <tr className="bg-text-muted/10">
               <SortHeader 
-                label="Month" 
+                label={strings.table.month} 
                 field="date" 
                 currentSort={sortField} 
                 direction={sortDirection} 
@@ -146,35 +153,35 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
                 align="left"
               />
               <SortHeader 
-                label="Volume" 
+                label={strings.table.volume} 
                 field="volume" 
                 currentSort={sortField} 
                 direction={sortDirection} 
                 onSort={handleSort}
               />
               <SortHeader 
-                label="Volume Δ" 
+                label={strings.table.volumeDelta} 
                 field="volumeChange" 
                 currentSort={sortField} 
                 direction={sortDirection} 
                 onSort={handleSort}
               />
               <SortHeader 
-                label="Swaps" 
+                label={strings.table.swaps} 
                 field="swaps" 
                 currentSort={sortField} 
                 direction={sortDirection} 
                 onSort={handleSort}
               />
               <SortHeader 
-                label="Swaps Δ" 
+                label={strings.table.swapsDelta} 
                 field="swapChange" 
                 currentSort={sortField} 
                 direction={sortDirection} 
                 onSort={handleSort}
               />
               <SortHeader 
-                label="Avg Size" 
+                label={strings.table.avgSize} 
                 field="avgSize" 
                 currentSort={sortField} 
                 direction={sortDirection} 
@@ -203,7 +210,7 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <ChangeIndicator value={month.volumeChange} />
+                    <ChangeIndicator value={month.volumeChange} muted={isCurrent} />
                   </td>
                   <td className="px-6 py-4 text-right">
                     <span className={`font-semibold mono-nums whitespace-nowrap ${isCurrent ? 'text-text-muted' : 'text-text-primary'}`}>
@@ -211,7 +218,7 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <ChangeIndicator value={month.swapChange} />
+                    <ChangeIndicator value={month.swapChange} muted={isCurrent} />
                   </td>
                   <td className="px-6 py-4 text-right">
                     <span className={`mono-nums whitespace-nowrap ${isCurrent ? 'text-text-muted' : 'text-text-secondary'}`}>

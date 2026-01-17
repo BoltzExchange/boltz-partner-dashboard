@@ -10,11 +10,13 @@ import {
 } from 'recharts';
 import { MonthlyStats } from '../types';
 import { useDenomination, Denomination } from '../contexts/DenominationContext';
+import { t } from '../i18n';
 
 interface PerformanceChartProps {
   data: MonthlyStats[];
   dataKey: 'volumeBtc' | 'swapCount' | 'avgSwapSize';
   title: string;
+  color?: string;
 }
 
 interface CustomTooltipProps extends TooltipProps<number, string> {
@@ -32,17 +34,23 @@ function isCurrentMonth(month: string, year: number): boolean {
   return month === currentMonthName && year === currentYear;
 }
 
+interface ChartDataPoint extends MonthlyStats {
+  isCurrentMonth?: boolean;
+}
+
 function CustomTooltip({ active, payload, label, dataKey, formatValue, formatSats }: CustomTooltipProps) {
+  const strings = t();
   if (!active || !payload || !payload.length) return null;
 
-  const data = payload[0].payload as MonthlyStats;
+  const data = payload[0].payload as ChartDataPoint;
+  const isCurrent = data.isCurrentMonth === true;
   
   const getFormattedValue = () => {
     switch (dataKey) {
       case 'volumeBtc':
         return formatValue(data.volumeBtc);
       case 'swapCount':
-        return `${data.swapCount.toLocaleString()} swaps`;
+        return `${data.swapCount.toLocaleString()} ${strings.common.swaps}`;
       case 'avgSwapSize':
         return formatSats(data.avgSwapSize);
       default:
@@ -57,16 +65,21 @@ function CustomTooltip({ active, payload, label, dataKey, formatValue, formatSat
 
   const change = getChangeValue();
   
+  const getChangeColorClass = () => {
+    if (isCurrent) return 'text-text-muted';
+    return change !== undefined && change >= 0 ? 'text-boltz-primary' : 'text-red-400';
+  };
+  
   return (
     <div className="bg-navy-700 border border-navy-400 rounded-xl p-4 shadow-xl">
       <p className="text-text-secondary text-sm mb-2">{label} {data.year}</p>
       <div className="space-y-1">
-        <p className="text-text-primary font-semibold mono-nums">
+        <p className={`font-semibold mono-nums ${isCurrent ? 'text-text-muted' : 'text-text-primary'}`}>
           {getFormattedValue()}
         </p>
         {change !== undefined && change !== null && (
-          <p className={`text-sm ${change >= 0 ? 'text-boltz-primary' : 'text-red-400'}`}>
-            {change >= 0 ? '+' : ''}{change.toFixed(1)}% from prev
+          <p className={`text-sm ${getChangeColorClass()}`}>
+            {change >= 0 ? '+' : ''}{change.toFixed(1)}% {strings.common.fromPrev}
           </p>
         )}
       </div>
@@ -74,7 +87,7 @@ function CustomTooltip({ active, payload, label, dataKey, formatValue, formatSat
   );
 }
 
-export default function PerformanceChart({ data, dataKey, title }: PerformanceChartProps) {
+export default function PerformanceChart({ data, dataKey, title, color = '#e8cb2b' }: PerformanceChartProps) {
   const { denomination, formatValue, formatSats } = useDenomination();
   
   const currentMonthIndex = data.findIndex(item => isCurrentMonth(item.month, item.year));
@@ -123,10 +136,9 @@ export default function PerformanceChart({ data, dataKey, title }: PerformanceCh
     }
   };
 
-  const isEfficiencyChart = dataKey === 'avgSwapSize';
-  const strokeColor = isEfficiencyChart ? '#4fadc2' : '#e8cb2b';
-  const gradientId = isEfficiencyChart ? 'colorGradientCyan' : 'colorGradientGold';
-  const dashedGradientId = isEfficiencyChart ? 'colorGradientCyanDashed' : 'colorGradientGoldDashed';
+  const strokeColor = color;
+  const gradientId = `colorGradient-${dataKey}`;
+  const dashedGradientId = `colorGradientDashed-${dataKey}`;
 
   return (
     <div className="bg-navy-600/60 backdrop-blur-sm border border-navy-400/50 rounded-2xl p-6 stat-glow">
@@ -136,19 +148,11 @@ export default function PerformanceChart({ data, dataKey, title }: PerformanceCh
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
-              <linearGradient id="colorGradientGold" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#e8cb2b" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#e8cb2b" stopOpacity={0} />
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={color} stopOpacity={0} />
               </linearGradient>
-              <linearGradient id="colorGradientCyan" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#4fadc2" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#4fadc2" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorGradientGoldDashed" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#727e8c" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#727e8c" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorGradientCyanDashed" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={dashedGradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#727e8c" stopOpacity={0.2} />
                 <stop offset="95%" stopColor="#727e8c" stopOpacity={0} />
               </linearGradient>

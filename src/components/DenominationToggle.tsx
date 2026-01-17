@@ -1,12 +1,14 @@
 import { useDenomination, Denomination } from '../contexts/DenominationContext';
+import { t } from '../i18n';
 
 export default function DenominationToggle() {
   const { denomination, setDenomination } = useDenomination();
+  const strings = t();
 
   return (
     <div 
       className="flex items-center bg-navy-400 rounded-lg p-0.5"
-      title="Toggle denomination"
+      title={strings.dashboard.toggleDenomination}
     >
       <button
         onClick={() => setDenomination(Denomination.BTC)}
@@ -16,7 +18,7 @@ export default function DenominationToggle() {
             : 'text-text-secondary hover:text-text-primary'
         }`}
       >
-        BTC
+        {strings.common.btc}
       </button>
       <button
         onClick={() => setDenomination(Denomination.SAT)}
@@ -26,7 +28,7 @@ export default function DenominationToggle() {
             : 'text-text-secondary hover:text-text-primary'
         }`}
       >
-        sats
+        {strings.common.sats}
       </button>
     </div>
   );

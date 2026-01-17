@@ -8,10 +8,11 @@ interface StatsCardProps {
   change?: number;
   showChange?: boolean;
   icon: ReactNode;
+  iconColor?: string;
   delay?: number;
 }
 
-export default function StatsCard({ title, value, subtitle, change, showChange = true, icon, delay = 0 }: StatsCardProps) {
+export default function StatsCard({ title, value, subtitle, change, showChange = true, icon, iconColor = '#e8cb2b', delay = 0 }: StatsCardProps) {
   const hasPositiveChange = change !== undefined && change > 0;
   const hasNegativeChange = change !== undefined && change < 0;
 
@@ -22,7 +23,14 @@ export default function StatsCard({ title, value, subtitle, change, showChange =
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start justify-between mb-4">
-        <div className="p-2.5 rounded-xl bg-boltz-primary/10 border border-boltz-primary/20">
+        <div 
+          className="p-2.5 rounded-xl"
+          style={{ 
+            backgroundColor: `${iconColor}15`,
+            borderWidth: '1px',
+            borderColor: `${iconColor}30`
+          }}
+        >
           {icon}
         </div>
         {showChange && change !== undefined && (

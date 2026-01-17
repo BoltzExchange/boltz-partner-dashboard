@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { AlertCircle, Loader2, Key, Lock, Zap } from 'lucide-react';
+import { t } from '../i18n';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -8,6 +9,8 @@ export default function LoginPage() {
   const [apiSecret, setApiSecret] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const strings = t();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +21,7 @@ export default function LoginPage() {
     const trimmedSecret = apiSecret.trim();
 
     if (!trimmedKey || !trimmedSecret) {
-      setError('Please enter both API Key and API Secret');
+      setError(strings.login.errorBothRequired);
       setIsLoading(false);
       return;
     }
@@ -26,7 +29,7 @@ export default function LoginPage() {
     const success = await login(trimmedKey, trimmedSecret);
     
     if (!success) {
-      setError('Invalid credentials. Please check your API Key and Secret.');
+      setError(strings.login.errorInvalidCredentials);
     }
     
     setIsLoading(false);
@@ -36,12 +39,12 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-navy-500">
       <div className="w-full max-w-md">
         <div className="text-center mb-8 animate-fade-in">
-          <img src="/boltz-logo.svg" alt="Boltz" className="w-20 h-20 mx-auto mb-6" />
+          <img src="/boltz-logo.svg" alt={strings.common.boltz} className="w-20 h-20 mx-auto mb-6" />
           <h1 className="text-3xl font-semibold text-text-primary mb-2">
-            Partner Dashboard
+            {strings.login.title}
           </h1>
           <p className="text-text-secondary">
-            Sign in with your Boltz API credentials
+            {strings.login.subtitle}
           </p>
         </div>
 
@@ -57,14 +60,14 @@ export default function LoginPage() {
                 className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2"
               >
                 <Key className="w-4 h-4" />
-                API Key
+                {strings.login.apiKey}
               </label>
               <input
                 type="text"
                 id="apiKey"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your API Key"
+                placeholder={strings.login.apiKeyPlaceholder}
                 className="w-full px-4 py-3 bg-navy-700 border border-navy-400/50 rounded-xl 
                          text-text-primary placeholder-text-muted
                          focus:outline-none focus:ring-2 focus:ring-boltz-primary/50 focus:border-boltz-primary
@@ -80,14 +83,14 @@ export default function LoginPage() {
                 className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2"
               >
                 <Lock className="w-4 h-4" />
-                API Secret
+                {strings.login.apiSecret}
               </label>
               <input
                 type="password"
                 id="apiSecret"
                 value={apiSecret}
                 onChange={(e) => setApiSecret(e.target.value)}
-                placeholder="Enter your API Secret"
+                placeholder={strings.login.apiSecretPlaceholder}
                 className="w-full px-4 py-3 bg-navy-700 border border-navy-400/50 rounded-xl 
                          text-text-primary placeholder-text-muted
                          focus:outline-none focus:ring-2 focus:ring-boltz-primary/50 focus:border-boltz-primary
@@ -117,12 +120,12 @@ export default function LoginPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Authenticating...</span>
+                  <span>{strings.login.authenticating}</span>
                 </>
               ) : (
                 <>
                   <Zap className="w-5 h-5" />
-                  <span>Access Dashboard</span>
+                  <span>{strings.login.accessDashboard}</span>
                 </>
               )}
             </button>
@@ -131,19 +134,19 @@ export default function LoginPage() {
 
         <div className="mt-6 p-4 bg-navy-600/40 rounded-xl border border-navy-400/30 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <p className="text-text-muted text-xs text-center">
-            🔒 Your credentials are stored locally and never leave your browser.
+            {strings.login.securityNote}
           </p>
         </div>
 
         <p className="text-center text-text-muted text-sm mt-6 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          Powered by{' '}
+          {strings.common.poweredBy}{' '}
           <a 
             href="https://boltz.exchange" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-boltz-link hover:text-boltz-link-hover transition-colors"
           >
-            Boltz
+            {strings.common.boltz}
           </a>
         </p>
       </div>
