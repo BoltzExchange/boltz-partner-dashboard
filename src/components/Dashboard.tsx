@@ -15,6 +15,7 @@ import { fetchReferralStatsAuthenticated } from "../services/boltzApi";
 import { ReferralStats } from "../types";
 import { truncateString } from "../utils/format";
 import DenominationToggle from "./DenominationToggle";
+import Footer from "./Footer";
 import LoadingSpinner from "./LoadingSpinner";
 import MonthlyTable from "./MonthlyTable";
 import PerformanceChart from "./PerformanceChart";
@@ -228,16 +229,7 @@ export default function Dashboard() {
 
             <footer className="border-t border-navy-400/50 mt-auto">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <p className="text-center text-text-muted text-sm">
-                        {strings.common.poweredBy}{" "}
-                        <a
-                            href="https://boltz.exchange"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-boltz-link hover:text-boltz-link-hover transition-colors">
-                            {strings.common.boltz}
-                        </a>
-                    </p>
+                    <Footer />
                 </div>
             </footer>
         </div>

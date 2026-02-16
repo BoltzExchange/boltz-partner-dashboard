@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { useAuth } from "../contexts/AuthContext";
 import { t } from "../i18n";
+import Footer from "./Footer";
 import LoadingSpinner from "./LoadingSpinner";
 
 export default function LoginPage() {
@@ -145,18 +146,11 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                <p
-                    className="text-center text-text-muted text-sm mt-6 animate-fade-in"
+                <div
+                    className="mt-6 animate-fade-in"
                     style={{ animationDelay: "0.4s" }}>
-                    {strings.common.poweredBy}{" "}
-                    <a
-                        href="https://boltz.exchange"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-boltz-link hover:text-boltz-link-hover transition-colors">
-                        {strings.common.boltz}
-                    </a>
-                </p>
+                    <Footer />
+                </div>
             </div>
         </div>
     );
