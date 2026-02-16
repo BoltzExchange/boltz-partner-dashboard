@@ -6,8 +6,18 @@ import {
     useState,
 } from "react";
 
-import { validateCredentials } from "../services/boltzApi";
-import { AuthState, Partner } from "../types";
+import { validateCredentials } from "../utils/boltzApi";
+
+export interface Partner {
+    apiKey: string;
+    apiSecret: string;
+}
+
+export interface AuthState {
+    isAuthenticated: boolean;
+    partner: Partner | null;
+    isLoading: boolean;
+}
 
 interface AuthContextType extends AuthState {
     login: (apiKey: string, apiSecret: string) => Promise<boolean>;
@@ -58,7 +68,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             const partner: Partner = {
-                name: "Boltz Partner",
                 apiKey,
                 apiSecret,
             };

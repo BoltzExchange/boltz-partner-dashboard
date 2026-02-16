@@ -1,5 +1,23 @@
-import { MonthlyStats, ReferralStats } from "../types";
-import { getMonthIndex, getMonthName } from "../utils/date";
+import { getMonthIndex, getMonthName } from "./date";
+
+export interface MonthlyStats {
+    month: string;
+    year: number;
+    volumeBtc: number;
+    swapCount: number;
+    avgSwapSize: number;
+    volumeChange?: number;
+    swapChange?: number;
+}
+
+export interface ReferralStats {
+    allTime: {
+        volumeBtc: number;
+        swapCount: number;
+        avgSwapSize: number;
+    };
+    monthly: MonthlyStats[];
+}
 
 const API_BASE = "https://api.boltz.exchange";
 
@@ -71,25 +89,16 @@ export async function fetchReferralStatsAuthenticated(
 
     const response = await fetch(`${API_BASE}${path}`, { headers });
 
-    console.log("Response status:", response.status);
-
     const responseText = await response.text();
-    console.log(
-        "Raw response (first 500 chars):",
-        responseText.substring(0, 500),
-    );
 
     if (!response.ok) {
-        console.error("API Error:", response.status, responseText);
         throw new Error(`API Error: ${response.status} - ${responseText}`);
     }
 
     let data: BoltzStatsData;
     try {
         data = JSON.parse(responseText);
-        console.log("Parsed response - years:", Object.keys(data));
-    } catch (e) {
-        console.error("Failed to parse JSON:", e);
+    } catch {
         throw new Error("Invalid response from API");
     }
 
@@ -113,8 +122,6 @@ export async function validateCredentials(
 }
 
 function processStatsData(statsData: BoltzStatsData): ReferralStats {
-    console.log("Processing stats data...");
-
     const monthlyData: MonthlyStats[] = [];
 
     Object.entries(statsData).forEach(([year, yearData]) => {
@@ -147,8 +154,6 @@ function processStatsData(statsData: BoltzStatsData): ReferralStats {
         return getMonthIndex(a.month) - getMonthIndex(b.month);
     });
 
-    console.log("Processed monthly data:", monthlyData);
-
     for (let i = 1; i < monthlyData.length; i++) {
         const prev = monthlyData[i - 1];
         monthlyData[i].volumeChange =
@@ -176,8 +181,5 @@ function processStatsData(statsData: BoltzStatsData): ReferralStats {
             ? Math.round((allTime.volumeBtc * 100_000_000) / allTime.swapCount)
             : 0;
 
-    console.log("All-time stats:", allTime);
-
     return { allTime, monthly: monthlyData };
 }
-

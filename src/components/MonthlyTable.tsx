@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
-import { MonthlyStats } from "../types";
+import { MonthlyStats } from "../utils/boltzApi";
 import { getMonthIndex, isCurrentMonth } from "../utils/date";
 
 interface MonthlyTableProps {

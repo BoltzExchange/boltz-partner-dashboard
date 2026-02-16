@@ -55,4 +55,3 @@ describe("StatsCard", () => {
         expect(screen.getByTestId("icon")).toBeInTheDocument();
     });
 });
-

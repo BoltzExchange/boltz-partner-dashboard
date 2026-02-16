@@ -11,8 +11,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Denomination, useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
-import { fetchReferralStatsAuthenticated } from "../services/boltzApi";
-import { ReferralStats } from "../types";
+import {
+    ReferralStats,
+    fetchReferralStatsAuthenticated,
+} from "../utils/boltzApi";
 import { truncateString } from "../utils/format";
 import DenominationToggle from "./DenominationToggle";
 import Footer from "./Footer";

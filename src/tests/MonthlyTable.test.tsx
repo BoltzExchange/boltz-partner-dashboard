@@ -2,9 +2,9 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DenominationProvider } from "../contexts/DenominationContext";
-import { MonthlyStats } from "../types";
 import MonthlyTable from "../components/MonthlyTable";
+import { DenominationProvider } from "../contexts/DenominationContext";
+import { MonthlyStats } from "../utils/boltzApi";
 
 const mockData: MonthlyStats[] = [
     {
@@ -125,4 +125,3 @@ describe("MonthlyTable - current month highlighting", () => {
         expect(janCell).toHaveClass("text-text-muted");
     });
 });
-

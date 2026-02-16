@@ -17,7 +17,7 @@ export default defineConfig({
     test: {
         globals: true,
         environment: "jsdom",
-        setupFiles: "./src/test/setup.ts",
+        setupFiles: "./src/tests/setup.ts",
         css: true,
         include: ["src/**/*.test.{ts,tsx}"],
         exclude: ["node_modules", "boltz-backend"],
