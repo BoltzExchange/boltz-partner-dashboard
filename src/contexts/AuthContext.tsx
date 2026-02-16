@@ -47,12 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
 
-      // Create a short display ID from the API key
-      const displayId = apiKey.substring(0, 8) + '...' + apiKey.substring(apiKey.length - 4);
-
       const partner: Partner = {
-        id: displayId,
-        name: 'Boltz Partner',
+        name: "Boltz Partner",
         apiKey,
         apiSecret,
       };

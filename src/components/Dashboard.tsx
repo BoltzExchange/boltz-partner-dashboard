@@ -16,6 +16,7 @@ import {
   RefreshCw,
   AlertCircle
 } from 'lucide-react';
+import { truncateString } from '../utils/format';
 
 export default function Dashboard() {
   const { partner, logout } = useAuth();
@@ -98,7 +99,7 @@ export default function Dashboard() {
               <img src="/boltz-logo.svg" alt={strings.common.boltz} className="w-10 h-10" />
               <div>
                 <h1 className="text-lg font-semibold text-text-primary">{strings.dashboard.title}</h1>
-                <p className="text-sm text-text-muted font-mono">{partner?.id}</p>
+                <p className="text-sm text-text-muted font-mono">{partner?.apiKey ? truncateString(partner.apiKey) : ''}</p>
               </div>
             </div>
 
