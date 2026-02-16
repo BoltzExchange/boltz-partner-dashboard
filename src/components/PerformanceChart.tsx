@@ -59,7 +59,7 @@ function CustomTooltip({
     };
 
     const getChangeValue = () => {
-        if (dataKey === "avgSwapSize") return null;
+        if (dataKey === "avgSwapSize") return undefined;
         return dataKey === "volumeBtc" ? data.volumeChange : data.swapChange;
     };
 
