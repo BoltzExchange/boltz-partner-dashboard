@@ -1,4 +1,5 @@
 import { MonthlyStats, ReferralStats } from "../types";
+import { getMonthIndex, getMonthName } from "../utils/date";
 
 const API_BASE = "https://api.boltz.exchange";
 
@@ -43,28 +44,30 @@ interface BoltzStatsData {
     };
 }
 
+async function buildAuthHeaders(
+    apiKey: string,
+    apiSecret: string,
+    method: string,
+    path: string,
+): Promise<Record<string, string>> {
+    const ts = Math.round(new Date().getTime() / 1000);
+    const message = `${ts}${method}${path}`;
+    const hmac = await createHmac(message, apiSecret);
+
+    return {
+        TS: ts.toString(),
+        "API-KEY": apiKey,
+        "API-HMAC": hmac,
+    };
+}
+
 // Authenticated endpoint - uses HMAC with API Key + Secret
 export async function fetchReferralStatsAuthenticated(
     apiKey: string,
     apiSecret: string,
 ): Promise<ReferralStats> {
     const path = "/v2/referral/stats";
-    const ts = Math.round(new Date().getTime() / 1000);
-    const method = "GET";
-
-    const message = `${ts}${method}${path}`;
-
-    console.log("=== Fetching /v2/referral/stats ===");
-    console.log("Timestamp:", ts);
-    console.log("Path:", path);
-
-    const hmac = await createHmac(message, apiSecret);
-
-    const headers: Record<string, string> = {
-        TS: ts.toString(),
-        "API-KEY": apiKey,
-        "API-HMAC": hmac,
-    };
+    const headers = await buildAuthHeaders(apiKey, apiSecret, "GET", path);
 
     const response = await fetch(`${API_BASE}${path}`, { headers });
 
@@ -100,24 +103,11 @@ export async function validateCredentials(
 ): Promise<boolean> {
     try {
         const path = "/v2/referral/stats";
-        const ts = Math.round(new Date().getTime() / 1000);
-        const method = "GET";
-
-        const message = `${ts}${method}${path}`;
-        const hmac = await createHmac(message, apiSecret);
-
-        const headers: Record<string, string> = {
-            TS: ts.toString(),
-            "API-KEY": apiKey,
-            "API-HMAC": hmac,
-        };
+        const headers = await buildAuthHeaders(apiKey, apiSecret, "GET", path);
 
         const response = await fetch(`${API_BASE}${path}`, { headers });
-        console.log("Validation response status:", response.status);
-
         return response.ok;
-    } catch (error) {
-        console.error("Validation error:", error);
+    } catch {
         return false;
     }
 }
@@ -191,38 +181,3 @@ function processStatsData(statsData: BoltzStatsData): ReferralStats {
     return { allTime, monthly: monthlyData };
 }
 
-function getMonthName(month: number): string {
-    const months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-    ];
-    return months[month - 1] || "Unknown";
-}
-
-function getMonthIndex(monthName: string): number {
-    const months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-    ];
-    return months.indexOf(monthName);
-}

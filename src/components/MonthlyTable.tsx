@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
 import { MonthlyStats } from "../types";
+import { getMonthIndex, isCurrentMonth } from "../utils/date";
 
 interface MonthlyTableProps {
     data: MonthlyStats[];
@@ -17,32 +18,6 @@ type SortField =
     | "swapChange"
     | "avgSize";
 type SortDirection = "asc" | "desc";
-
-const MONTH_NAMES = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-];
-
-function isCurrentMonth(month: string, year: number): boolean {
-    const now = new Date();
-    const currentMonthName = MONTH_NAMES[now.getMonth()];
-    const currentYear = now.getFullYear();
-    return month === currentMonthName && year === currentYear;
-}
-
-function getMonthIndex(month: string): number {
-    return MONTH_NAMES.indexOf(month);
-}
 
 function ChangeIndicator({
     value,

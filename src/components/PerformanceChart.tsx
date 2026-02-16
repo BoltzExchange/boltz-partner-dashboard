@@ -12,6 +12,7 @@ import {
 import { Denomination, useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
 import { MonthlyStats } from "../types";
+import { isCurrentMonth } from "../utils/date";
 
 interface PerformanceChartProps {
     data: MonthlyStats[];
@@ -24,28 +25,6 @@ interface CustomTooltipProps extends TooltipProps<number, string> {
     dataKey: string;
     formatValue: (btc: number) => string;
     formatSats: (sats: number) => string;
-}
-
-const MONTH_NAMES = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-];
-
-function isCurrentMonth(month: string, year: number): boolean {
-    const now = new Date();
-    const currentMonthName = MONTH_NAMES[now.getMonth()];
-    const currentYear = now.getFullYear();
-    return month === currentMonthName && year === currentYear;
 }
 
 interface ChartDataPoint extends MonthlyStats {
