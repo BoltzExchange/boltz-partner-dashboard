@@ -6,7 +6,7 @@ import {
     Denomination,
     DenominationProvider,
     useDenomination,
-} from "./DenominationContext";
+} from "../contexts/DenominationContext";
 
 function TestComponent() {
     const {

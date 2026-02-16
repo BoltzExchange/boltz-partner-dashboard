@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import DenominationToggle from "../components/DenominationToggle";
 import { DenominationProvider } from "../contexts/DenominationContext";
-import DenominationToggle from "./DenominationToggle";
 
 function renderWithProvider() {
     return render(

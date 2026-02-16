@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { TrendingUp } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
-import StatsCard from "./StatsCard";
+import StatsCard from "../components/StatsCard";
 
 describe("StatsCard", () => {
     const defaultProps = {
@@ -55,3 +55,4 @@ describe("StatsCard", () => {
         expect(screen.getByTestId("icon")).toBeInTheDocument();
     });
 });
+

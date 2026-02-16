@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DenominationProvider } from "../contexts/DenominationContext";
 import { MonthlyStats } from "../types";
-import MonthlyTable from "./MonthlyTable";
+import MonthlyTable from "../components/MonthlyTable";
 
 const mockData: MonthlyStats[] = [
     {
@@ -125,3 +125,4 @@ describe("MonthlyTable - current month highlighting", () => {
         expect(janCell).toHaveClass("text-text-muted");
     });
 });
+
