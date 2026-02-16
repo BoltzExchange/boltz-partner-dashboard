@@ -1,36 +1,36 @@
 export interface Partner {
-  name: string;
-  apiKey: string;
-  apiSecret: string;
+    name: string;
+    apiKey: string;
+    apiSecret: string;
 }
 
 export interface ReferralStats {
-  allTime: {
-    volumeBtc: number;
-    swapCount: number;
-    avgSwapSize: number;
-  };
-  monthly: MonthlyStats[];
+    allTime: {
+        volumeBtc: number;
+        swapCount: number;
+        avgSwapSize: number;
+    };
+    monthly: MonthlyStats[];
 }
 
 export interface MonthlyStats {
-  month: string;
-  year: number;
-  volumeBtc: number;
-  swapCount: number;
-  avgSwapSize: number;
-  volumeChange?: number;
-  swapChange?: number;
+    month: string;
+    year: number;
+    volumeBtc: number;
+    swapCount: number;
+    avgSwapSize: number;
+    volumeChange?: number;
+    swapChange?: number;
 }
 
 export interface SwapStats {
-  type: string;
-  count: number;
-  volume: number;
+    type: string;
+    count: number;
+    volume: number;
 }
 
 export interface AuthState {
-  isAuthenticated: boolean;
-  partner: Partner | null;
-  isLoading: boolean;
+    isAuthenticated: boolean;
+    partner: Partner | null;
+    isLoading: boolean;
 }
