@@ -15,6 +15,7 @@ import { fetchReferralStatsAuthenticated } from "../services/boltzApi";
 import { ReferralStats } from "../types";
 import { truncateString } from "../utils/format";
 import DenominationToggle from "./DenominationToggle";
+import LoadingSpinner from "./LoadingSpinner";
 import MonthlyTable from "./MonthlyTable";
 import PerformanceChart from "./PerformanceChart";
 import StatsCard from "./StatsCard";
@@ -56,16 +57,7 @@ export default function Dashboard() {
     }, [partner]);
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-navy-500">
-                <div className="text-center">
-                    <div className="w-12 h-12 border-2 border-boltz-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-text-secondary">
-                        {strings.dashboard.loadingStats}
-                    </p>
-                </div>
-            </div>
-        );
+        return <LoadingSpinner message={strings.dashboard.loadingStats} />;
     }
 
     if (error && !stats) {

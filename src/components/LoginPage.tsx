@@ -1,8 +1,9 @@
-import { AlertCircle, Key, Loader2, Lock, Zap } from "lucide-react";
+import { AlertCircle, Key, Lock, Zap } from "lucide-react";
 import { useState } from "react";
 
 import { useAuth } from "../contexts/AuthContext";
 import { t } from "../i18n";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function LoginPage() {
     const { login } = useAuth();
@@ -120,7 +121,10 @@ export default function LoginPage() {
                        flex items-center justify-center gap-2">
                             {isLoading ? (
                                 <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    <LoadingSpinner
+                                        size="sm"
+                                        fullPage={false}
+                                    />
                                     <span>{strings.login.authenticating}</span>
                                 </>
                             ) : (
