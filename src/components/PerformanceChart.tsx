@@ -11,7 +11,7 @@ import {
 
 import { Denomination, useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
-import { MonthlyStats } from "../types";
+import { MonthlyStats } from "../utils/boltzApi";
 import { isCurrentMonth } from "../utils/date";
 
 interface PerformanceChartProps {
@@ -82,7 +82,7 @@ function CustomTooltip({
                     className={`font-semibold mono-nums ${isCurrent ? "text-text-muted" : "text-text-primary"}`}>
                     {getFormattedValue()}
                 </p>
-                {change !== undefined && change !== null && (
+                {change !== undefined && (
                     <p className={`text-sm ${getChangeColorClass()}`}>
                         {change >= 0 ? "+" : ""}
                         {change.toFixed(1)}% {strings.common.fromPrev}
@@ -161,7 +161,6 @@ export default function PerformanceChart({
         }
     };
 
-    const strokeColor = color;
     const gradientId = `colorGradient-${dataKey}`;
     const dashedGradientId = `colorGradientDashed-${dataKey}`;
 
@@ -241,12 +240,12 @@ export default function PerformanceChart({
                         <Area
                             type="monotone"
                             dataKey="solidValue"
-                            stroke={strokeColor}
+                            stroke={color}
                             strokeWidth={2}
                             fill={`url(#${gradientId})`}
-                            dot={{ fill: strokeColor, strokeWidth: 0, r: 4 }}
+                            dot={{ fill: color, strokeWidth: 0, r: 4 }}
                             activeDot={{
-                                fill: strokeColor,
+                                fill: color,
                                 strokeWidth: 2,
                                 stroke: "#091625",
                                 r: 6,
