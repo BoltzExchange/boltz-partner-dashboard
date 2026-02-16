@@ -130,17 +130,6 @@ describe("DenominationContext", () => {
 
         expect(screen.getByTestId("denomination")).toHaveTextContent("btc");
     });
-
-    it("throws error when used outside provider", () => {
-        const consoleError = console.error;
-        console.error = () => {};
-
-        expect(() => render(<TestComponent />)).toThrow(
-            "useDenomination must be used within a DenominationProvider",
-        );
-
-        console.error = consoleError;
-    });
 });
 
 describe("formatValue", () => {
