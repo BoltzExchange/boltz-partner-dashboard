@@ -13,9 +13,9 @@ import { Denomination, useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
 import {
     ReferralStats,
+    fetchReferralId,
     fetchReferralStatsAuthenticated,
 } from "../utils/boltzApi";
-import { truncateString } from "../utils/format";
 import DenominationToggle from "./DenominationToggle";
 import Footer from "./Footer";
 import LoadingSpinner from "./LoadingSpinner";
@@ -27,6 +27,7 @@ export default function Dashboard() {
     const { partner, logout } = useAuth();
     const { denomination, formatValue, formatSats } = useDenomination();
     const [stats, setStats] = useState<ReferralStats | null>(null);
+    const [referralName, setReferralName] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -40,11 +41,17 @@ export default function Dashboard() {
         }
 
         try {
-            const data = await fetchReferralStatsAuthenticated(
-                partner.apiKey,
-                partner.apiSecret,
-            );
+            const [data, refId] = await Promise.all([
+                fetchReferralStatsAuthenticated(
+                    partner.apiKey,
+                    partner.apiSecret,
+                ),
+                referralName
+                    ? Promise.resolve(referralName)
+                    : fetchReferralId(partner.apiKey, partner.apiSecret),
+            ]);
             setStats(data);
+            setReferralName(refId);
             setError(null);
         } catch (err) {
             console.error("Failed to load stats:", err);
@@ -107,9 +114,7 @@ export default function Dashboard() {
                                     {strings.dashboard.title}
                                 </h1>
                                 <p className="text-sm text-text-muted font-mono">
-                                    {partner?.apiKey
-                                        ? truncateString(partner.apiKey)
-                                        : ""}
+                                    {referralName || ""}
                                 </p>
                             </div>
                         </div>
