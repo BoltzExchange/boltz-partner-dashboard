@@ -105,6 +105,24 @@ export async function fetchReferralStatsAuthenticated(
     return processStatsData(data);
 }
 
+// Fetch the referral ID (name) for the authenticated partner
+export async function fetchReferralId(
+    apiKey: string,
+    apiSecret: string,
+): Promise<string> {
+    const path = "/v2/referral";
+    const headers = await buildAuthHeaders(apiKey, apiSecret, "GET", path);
+
+    const response = await fetch(`${API_BASE}${path}`, { headers });
+
+    if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.id;
+}
+
 // Validate API credentials by making an authenticated request
 export async function validateCredentials(
     apiKey: string,
