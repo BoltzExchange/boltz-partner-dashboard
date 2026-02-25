@@ -12,6 +12,8 @@ import {
 
 import { t } from "../i18n";
 import { MonthlyStats } from "../utils/boltzApi";
+import { CHART_COLORS, FAILURE_RATE_COLORS } from "../utils/chartTheme";
+import { getSwapTypeLabelMap } from "../utils/swapTypes";
 
 interface FailureRateChartProps {
     data: MonthlyStats[];
@@ -29,15 +31,10 @@ interface ChartDataPoint {
 
 interface CustomTooltipProps extends TooltipProps<number, string> {}
 
-// Color coding for swap types
-const SWAP_TYPE_COLORS = {
-    submarine: "#4fadc2",
-    reverse: "#f7931a",
-    chain: "#e74c3c",
-};
-
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
     const strings = t();
+    const labelMap = getSwapTypeLabelMap(strings);
+
     if (!active || !payload || !payload.length) return null;
 
     return (
@@ -46,12 +43,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
             <div className="space-y-1">
                 {payload.map((entry, index) => {
                     const swapType =
-                        entry.dataKey as keyof typeof SWAP_TYPE_COLORS;
-                    const labelMap: Record<string, string> = {
-                        submarine: strings.charts.swapTypes.submarine,
-                        reverse: strings.charts.swapTypes.reverse,
-                        chain: strings.charts.swapTypes.chain,
-                    };
+                        entry.dataKey as keyof typeof FAILURE_RATE_COLORS;
                     return (
                         <div
                             key={index}
@@ -81,6 +73,7 @@ export default function FailureRateChart({
     title,
 }: FailureRateChartProps) {
     const strings = t();
+    const labelMap = getSwapTypeLabelMap(strings);
 
     // Transform data for the chart
     const chartData: ChartDataPoint[] = data.map((item) => ({
@@ -133,17 +126,17 @@ export default function FailureRateChart({
                         barGap={4}>
                         <CartesianGrid
                             strokeDasharray="3 3"
-                            stroke="#1e2d3c"
+                            stroke={CHART_COLORS.grid}
                             vertical={false}
                         />
                         <XAxis
                             dataKey="label"
-                            tick={{ fill: "#727e8c", fontSize: 12 }}
+                            tick={{ fill: CHART_COLORS.axisTick, fontSize: 12 }}
                             tickLine={false}
-                            axisLine={{ stroke: "#1e2d3c" }}
+                            axisLine={{ stroke: CHART_COLORS.grid }}
                         />
                         <YAxis
-                            tick={{ fill: "#727e8c", fontSize: 12 }}
+                            tick={{ fill: CHART_COLORS.axisTick, fontSize: 12 }}
                             tickLine={false}
                             axisLine={false}
                             tickFormatter={formatYAxis}
@@ -151,7 +144,7 @@ export default function FailureRateChart({
                         />
                         <Tooltip
                             content={<CustomTooltip />}
-                            cursor={{ fill: "rgba(30, 45, 60, 0.35)" }}
+                            cursor={{ fill: CHART_COLORS.tooltipCursor }}
                         />
                         <Legend
                             verticalAlign="top"
@@ -159,34 +152,30 @@ export default function FailureRateChart({
                             iconType="circle"
                             wrapperStyle={{ paddingBottom: "10px" }}
                             formatter={(value) => {
-                                const labelMap: Record<string, string> = {
-                                    submarine:
-                                        strings.charts.swapTypes.submarine,
-                                    reverse: strings.charts.swapTypes.reverse,
-                                    chain: strings.charts.swapTypes.chain,
-                                };
                                 return (
                                     <span className="text-text-secondary text-sm">
-                                        {labelMap[value] || value}
+                                        {labelMap[
+                                            value as keyof typeof labelMap
+                                        ] || value}
                                     </span>
                                 );
                             }}
                         />
                         <Bar
                             dataKey="submarine"
-                            fill={SWAP_TYPE_COLORS.submarine}
+                            fill={FAILURE_RATE_COLORS.submarine}
                             radius={[2, 2, 0, 0]}
                             maxBarSize={40}
                         />
                         <Bar
                             dataKey="reverse"
-                            fill={SWAP_TYPE_COLORS.reverse}
+                            fill={FAILURE_RATE_COLORS.reverse}
                             radius={[2, 2, 0, 0]}
                             maxBarSize={40}
                         />
                         <Bar
                             dataKey="chain"
-                            fill={SWAP_TYPE_COLORS.chain}
+                            fill={FAILURE_RATE_COLORS.chain}
                             radius={[2, 2, 0, 0]}
                             maxBarSize={40}
                         />

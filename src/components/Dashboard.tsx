@@ -16,6 +16,7 @@ import {
     fetchReferralId,
     fetchReferralStatsAuthenticated,
 } from "../utils/boltzApi";
+import { CHART_COLORS, SWAP_TYPE_COLORS } from "../utils/chartTheme";
 import DenominationToggle from "./DenominationToggle";
 import FailureRateChart from "./FailureRateChart";
 import Footer from "./Footer";
@@ -165,10 +166,9 @@ export default function Dashboard() {
                         icon={
                             <TrendingUp
                                 className="w-5 h-5"
-                                style={{ color: "#e8cb2b" }}
+                                style={{ color: CHART_COLORS.primary }}
                             />
                         }
-                        iconColor="#e8cb2b"
                         delay={0}
                     />
                     <StatsCard
@@ -178,10 +178,9 @@ export default function Dashboard() {
                         icon={
                             <BarChart3
                                 className="w-5 h-5"
-                                style={{ color: "#f7931a" }}
+                                style={{ color: SWAP_TYPE_COLORS.reverse }}
                             />
                         }
-                        iconColor="#f7931a"
                         delay={50}
                     />
                     <StatsCard
@@ -191,10 +190,9 @@ export default function Dashboard() {
                         icon={
                             <Coins
                                 className="w-5 h-5"
-                                style={{ color: "#4fadc2" }}
+                                style={{ color: SWAP_TYPE_COLORS.submarine }}
                             />
                         }
-                        iconColor="#4fadc2"
                         delay={100}
                     />
                 </div>
@@ -208,7 +206,7 @@ export default function Dashboard() {
                                 title={withUnitSuffix(
                                     strings.dashboard.volumeOverTime,
                                 )}
-                                color="#e8cb2b"
+                                color={CHART_COLORS.primary}
                             />
                         </div>
 
@@ -235,7 +233,7 @@ export default function Dashboard() {
                                 data={stats.monthly}
                                 dataKey="swapCount"
                                 title={strings.dashboard.swapCountOverTime}
-                                color="#f7931a"
+                                color={SWAP_TYPE_COLORS.reverse}
                             />
                             <PerformanceChart
                                 data={stats.monthly}
@@ -243,7 +241,7 @@ export default function Dashboard() {
                                 title={withUnitSuffix(
                                     strings.dashboard.avgSwapSizeOverTime,
                                 )}
-                                color="#4fadc2"
+                                color={SWAP_TYPE_COLORS.submarine}
                             />
                         </div>
                     </>

@@ -20,6 +20,11 @@ import {
     ReferralStats,
     fetchReferralStatsAuthenticated,
 } from "../utils/boltzApi";
+import {
+    CHART_COLORS,
+    FAILURE_RATE_COLORS,
+    SWAP_TYPE_COLORS,
+} from "../utils/chartTheme";
 import { getPairColor } from "../utils/pairColors";
 
 interface PairStats {
@@ -343,12 +348,10 @@ export default function MonthDetailPage() {
                         icon={
                             <TrendingUp
                                 className="w-5 h-5"
-                                style={{ color: "#e8cb2b" }}
+                                style={{ color: CHART_COLORS.primary }}
                             />
                         }
-                        iconColor="#e8cb2b"
                         delay={0}
-                        framedIcon={false}
                     />
                     <StatsCard
                         title={strings.monthDetail.swaps}
@@ -360,12 +363,10 @@ export default function MonthDetailPage() {
                         icon={
                             <BarChart3
                                 className="w-5 h-5"
-                                style={{ color: "#f7931a" }}
+                                style={{ color: SWAP_TYPE_COLORS.reverse }}
                             />
                         }
-                        iconColor="#f7931a"
                         delay={50}
-                        framedIcon={false}
                     />
                     <StatsCard
                         title={strings.monthDetail.avgSwapSize}
@@ -377,12 +378,10 @@ export default function MonthDetailPage() {
                         icon={
                             <Coins
                                 className="w-5 h-5"
-                                style={{ color: "#4fadc2" }}
+                                style={{ color: SWAP_TYPE_COLORS.submarine }}
                             />
                         }
-                        iconColor="#4fadc2"
                         delay={100}
-                        framedIcon={false}
                     />
                 </div>
 
@@ -399,19 +398,19 @@ export default function MonthDetailPage() {
                         <FailureRateBar
                             label={strings.charts.swapTypes.submarine}
                             value={monthData.failureRates.submarine}
-                            color="#4fadc2"
+                            color={FAILURE_RATE_COLORS.submarine}
                             average={averages.failureRates.submarine}
                         />
                         <FailureRateBar
                             label={strings.charts.swapTypes.reverse}
                             value={monthData.failureRates.reverse}
-                            color="#f7931a"
+                            color={FAILURE_RATE_COLORS.reverse}
                             average={averages.failureRates.reverse}
                         />
                         <FailureRateBar
                             label={strings.charts.swapTypes.chain}
                             value={monthData.failureRates.chain}
-                            color="#e74c3c"
+                            color={FAILURE_RATE_COLORS.chain}
                             average={averages.failureRates.chain}
                         />
                     </div>
@@ -439,6 +438,7 @@ export default function MonthDetailPage() {
                                                 innerRadius={60}
                                                 outerRadius={80}
                                                 paddingAngle={2}
+                                                stroke="none"
                                                 dataKey="percentage">
                                                 {pairStats.map(
                                                     (pair, index) => (

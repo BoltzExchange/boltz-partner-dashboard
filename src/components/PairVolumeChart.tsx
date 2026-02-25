@@ -15,6 +15,7 @@ import {
 import { Denomination, useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
 import { MonthlyStats } from "../utils/boltzApi";
+import { CHART_COLORS } from "../utils/chartTheme";
 import { getPairColor } from "../utils/pairColors";
 
 interface PairVolumeChartProps {
@@ -175,18 +176,18 @@ function SinglePairChart({
                         </defs>
                         <CartesianGrid
                             strokeDasharray="3 3"
-                            stroke="#1e2d3c"
+                            stroke={CHART_COLORS.grid}
                             vertical={false}
                         />
                         <XAxis
                             dataKey="label"
-                            tick={{ fill: "#727e8c", fontSize: 10 }}
+                            tick={{ fill: CHART_COLORS.axisTick, fontSize: 10 }}
                             tickLine={false}
-                            axisLine={{ stroke: "#1e2d3c" }}
+                            axisLine={{ stroke: CHART_COLORS.grid }}
                             interval="preserveStartEnd"
                         />
                         <YAxis
-                            tick={{ fill: "#727e8c", fontSize: 10 }}
+                            tick={{ fill: CHART_COLORS.axisTick, fontSize: 10 }}
                             tickLine={false}
                             axisLine={false}
                             tickFormatter={formatYAxis}
@@ -209,7 +210,7 @@ function SinglePairChart({
                             activeDot={{
                                 fill: color,
                                 strokeWidth: 2,
-                                stroke: "#091625",
+                                stroke: CHART_COLORS.activeDotStroke,
                                 r: 4,
                             }}
                         />
@@ -363,17 +364,23 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                             </defs>
                             <CartesianGrid
                                 strokeDasharray="3 3"
-                                stroke="#1e2d3c"
+                                stroke={CHART_COLORS.grid}
                                 vertical={false}
                             />
                             <XAxis
                                 dataKey="label"
-                                tick={{ fill: "#727e8c", fontSize: 12 }}
+                                tick={{
+                                    fill: CHART_COLORS.axisTick,
+                                    fontSize: 12,
+                                }}
                                 tickLine={false}
-                                axisLine={{ stroke: "#1e2d3c" }}
+                                axisLine={{ stroke: CHART_COLORS.grid }}
                             />
                             <YAxis
-                                tick={{ fill: "#727e8c", fontSize: 12 }}
+                                tick={{
+                                    fill: CHART_COLORS.axisTick,
+                                    fontSize: 12,
+                                }}
                                 tickLine={false}
                                 axisLine={false}
                                 tickFormatter={formatYAxis}
@@ -409,7 +416,7 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                                         activeDot={{
                                             fill: color,
                                             strokeWidth: 2,
-                                            stroke: "#091625",
+                                            stroke: CHART_COLORS.activeDotStroke,
                                             r: 5,
                                         }}
                                     />

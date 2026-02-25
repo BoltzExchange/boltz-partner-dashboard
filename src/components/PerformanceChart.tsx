@@ -13,6 +13,7 @@ import {
 import { Denomination, useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
 import { MonthlyStats } from "../utils/boltzApi";
+import { CHART_COLORS } from "../utils/chartTheme";
 import { isCurrentMonth } from "../utils/date";
 
 interface PerformanceChartProps {
@@ -98,7 +99,7 @@ export default function PerformanceChart({
     data,
     dataKey,
     title,
-    color = "#e8cb2b",
+    color = CHART_COLORS.primary,
 }: PerformanceChartProps) {
     const { denomination, formatValue, formatSats } = useDenomination();
 
@@ -202,29 +203,29 @@ export default function PerformanceChart({
                                 y2="1">
                                 <stop
                                     offset="5%"
-                                    stopColor="#727e8c"
+                                    stopColor={CHART_COLORS.axisTick}
                                     stopOpacity={0.2}
                                 />
                                 <stop
                                     offset="95%"
-                                    stopColor="#727e8c"
+                                    stopColor={CHART_COLORS.axisTick}
                                     stopOpacity={0}
                                 />
                             </linearGradient>
                         </defs>
                         <CartesianGrid
                             strokeDasharray="3 3"
-                            stroke="#1e2d3c"
+                            stroke={CHART_COLORS.grid}
                             vertical={false}
                         />
                         <XAxis
                             dataKey="label"
-                            tick={{ fill: "#727e8c", fontSize: 12 }}
+                            tick={{ fill: CHART_COLORS.axisTick, fontSize: 12 }}
                             tickLine={false}
-                            axisLine={{ stroke: "#1e2d3c" }}
+                            axisLine={{ stroke: CHART_COLORS.grid }}
                         />
                         <YAxis
-                            tick={{ fill: "#727e8c", fontSize: 12 }}
+                            tick={{ fill: CHART_COLORS.axisTick, fontSize: 12 }}
                             tickLine={false}
                             axisLine={false}
                             tickFormatter={formatYAxis}
@@ -248,7 +249,7 @@ export default function PerformanceChart({
                             activeDot={{
                                 fill: color,
                                 strokeWidth: 2,
-                                stroke: "#091625",
+                                stroke: CHART_COLORS.activeDotStroke,
                                 r: 6,
                             }}
                             connectNulls={false}
@@ -257,7 +258,7 @@ export default function PerformanceChart({
                             <Area
                                 type="monotone"
                                 dataKey="dashedValue"
-                                stroke="#727e8c"
+                                stroke={CHART_COLORS.axisTick}
                                 strokeWidth={2}
                                 strokeDasharray="5 5"
                                 fill={`url(#${dashedGradientId})`}
@@ -276,7 +277,7 @@ export default function PerformanceChart({
                                             cx={props.cx}
                                             cy={props.cy}
                                             r={4}
-                                            fill="#727e8c"
+                                            fill={CHART_COLORS.axisTick}
                                         />
                                     );
                                 }}
@@ -297,8 +298,10 @@ export default function PerformanceChart({
                                             cx={props.cx}
                                             cy={props.cy}
                                             r={6}
-                                            fill="#727e8c"
-                                            stroke="#091625"
+                                            fill={CHART_COLORS.axisTick}
+                                            stroke={
+                                                CHART_COLORS.activeDotStroke
+                                            }
                                             strokeWidth={2}
                                         />
                                     );
