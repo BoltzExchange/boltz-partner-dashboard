@@ -17,9 +17,11 @@ import {
     fetchReferralStatsAuthenticated,
 } from "../utils/boltzApi";
 import DenominationToggle from "./DenominationToggle";
+import FailureRateChart from "./FailureRateChart";
 import Footer from "./Footer";
 import LoadingSpinner from "./LoadingSpinner";
 import MonthlyTable from "./MonthlyTable";
+import PairVolumeChart from "./PairVolumeChart";
 import PerformanceChart from "./PerformanceChart";
 import StatsCard from "./StatsCard";
 
@@ -32,6 +34,15 @@ export default function Dashboard() {
     const [error, setError] = useState<string | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const strings = t();
+    const unitLabel =
+        denomination === Denomination.BTC
+            ? strings.common.inBtc
+            : strings.common.inSats;
+    const withUnitSuffix = (label: string) => (
+        <>
+            {label} <span className="text-text-muted">({unitLabel})</span>
+        </>
+    );
 
     const loadStats = async (showRefreshIndicator = false) => {
         if (!partner) return;
@@ -194,10 +205,31 @@ export default function Dashboard() {
                             <PerformanceChart
                                 data={stats.monthly}
                                 dataKey="volumeBtc"
-                                title={`${strings.dashboard.volumeOverTime} (${denomination === Denomination.BTC ? strings.common.btc : strings.common.sats})`}
+                                title={withUnitSuffix(
+                                    strings.dashboard.volumeOverTime,
+                                )}
                                 color="#e8cb2b"
                             />
                         </div>
+
+                        {/* Pair Volume Chart */}
+                        <div className="mb-6">
+                            <PairVolumeChart
+                                data={stats.monthly}
+                                title={withUnitSuffix(
+                                    strings.dashboard.volumeByPair,
+                                )}
+                            />
+                        </div>
+
+                        {/* Failure Rate Chart */}
+                        <div className="mb-6">
+                            <FailureRateChart
+                                data={stats.monthly}
+                                title={strings.dashboard.swapFailureRates}
+                            />
+                        </div>
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                             <PerformanceChart
                                 data={stats.monthly}
@@ -208,7 +240,9 @@ export default function Dashboard() {
                             <PerformanceChart
                                 data={stats.monthly}
                                 dataKey="avgSwapSize"
-                                title={`${strings.dashboard.avgSwapSizeOverTime} (${denomination === Denomination.BTC ? strings.common.btc : strings.common.sats})`}
+                                title={withUnitSuffix(
+                                    strings.dashboard.avgSwapSizeOverTime,
+                                )}
                                 color="#4fadc2"
                             />
                         </div>

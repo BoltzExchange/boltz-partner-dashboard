@@ -4,6 +4,7 @@ import Dashboard from "./components/Dashboard";
 import LoadingSpinner from "./components/LoadingSpinner";
 import LoginPage from "./components/LoginPage";
 import { useAuth } from "./contexts/AuthContext";
+import MonthDetailPage from "./pages/MonthDetailPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading } = useAuth();
@@ -40,6 +41,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/month/:year/:month"
+                    element={
+                        <ProtectedRoute>
+                            <MonthDetailPage />
                         </ProtectedRoute>
                     }
                 />

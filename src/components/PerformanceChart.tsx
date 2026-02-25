@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import {
     Area,
     AreaChart,
@@ -17,7 +18,7 @@ import { isCurrentMonth } from "../utils/date";
 interface PerformanceChartProps {
     data: MonthlyStats[];
     dataKey: "volumeBtc" | "swapCount" | "avgSwapSize";
-    title: string;
+    title: ReactNode;
     color?: string;
 }
 
@@ -59,7 +60,7 @@ function CustomTooltip({
     };
 
     const getChangeValue = () => {
-        if (dataKey === "avgSwapSize") return undefined;
+        if (dataKey === "avgSwapSize") return null;
         return dataKey === "volumeBtc" ? data.volumeChange : data.swapChange;
     };
 
@@ -67,7 +68,7 @@ function CustomTooltip({
 
     const getChangeColorClass = () => {
         if (isCurrent) return "text-text-muted";
-        return change !== undefined && change >= 0
+        return change !== undefined && change !== null && change >= 0
             ? "text-boltz-primary"
             : "text-red-400";
     };
@@ -82,7 +83,7 @@ function CustomTooltip({
                     className={`font-semibold mono-nums ${isCurrent ? "text-text-muted" : "text-text-primary"}`}>
                     {getFormattedValue()}
                 </p>
-                {change !== undefined && (
+                {change !== undefined && change !== null && (
                     <p className={`text-sm ${getChangeColorClass()}`}>
                         {change >= 0 ? "+" : ""}
                         {change.toFixed(1)}% {strings.common.fromPrev}
