@@ -7,7 +7,6 @@ export default {
                 boltz: {
                     primary: "#e8cb2b",
                     "primary-light": "#fee86b",
-                    "primary-glow": "rgba(232, 203, 43, 0.4)",
                     link: "#4fadc2",
                     "link-hover": "#70cde2",
                 },
