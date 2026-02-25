@@ -8,6 +8,13 @@ export interface MonthlyStats {
     avgSwapSize: number;
     volumeChange?: number;
     swapChange?: number;
+    pairVolume: Record<string, number>;
+    pairTrades: Record<string, number>;
+    failureRates: {
+        submarine: number;
+        reverse: number;
+        chain: number;
+    };
 }
 
 export interface ReferralStats {
@@ -51,6 +58,11 @@ interface BoltzStatsData {
             trades?: {
                 total?: number;
                 [key: string]: number | undefined;
+            };
+            failureRates?: {
+                submarine?: number;
+                reverse?: number;
+                chain?: number;
             };
             groups?: {
                 [partnerId: string]: {
@@ -156,12 +168,42 @@ function processStatsData(statsData: BoltzStatsData): ReferralStats {
                         ? Math.round((volumeBtc * 100_000_000) / swapCount)
                         : 0;
 
+                // Extract per-pair volume and trades (excluding "total")
+                const pairVolume: Record<string, number> = {};
+                const pairTrades: Record<string, number> = {};
+
+                if (monthData.volume) {
+                    Object.entries(monthData.volume).forEach(([key, value]) => {
+                        if (key !== "total" && value !== undefined) {
+                            pairVolume[key] = parseFloat(value);
+                        }
+                    });
+                }
+
+                if (monthData.trades) {
+                    Object.entries(monthData.trades).forEach(([key, value]) => {
+                        if (key !== "total" && value !== undefined) {
+                            pairTrades[key] = value;
+                        }
+                    });
+                }
+
+                // Extract failure rates
+                const failureRates = {
+                    submarine: monthData.failureRates?.submarine ?? 0,
+                    reverse: monthData.failureRates?.reverse ?? 0,
+                    chain: monthData.failureRates?.chain ?? 0,
+                };
+
                 monthlyData.push({
                     month: getMonthName(monthNum),
                     year: yearNum,
                     volumeBtc,
                     swapCount,
                     avgSwapSize,
+                    pairVolume,
+                    pairTrades,
+                    failureRates,
                 });
             }
         });

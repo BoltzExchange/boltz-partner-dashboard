@@ -1,5 +1,12 @@
-import { ChevronDown, ChevronUp, TrendingDown, TrendingUp } from "lucide-react";
+import {
+    ChevronDown,
+    ChevronRight,
+    ChevronUp,
+    TrendingDown,
+    TrendingUp,
+} from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
@@ -99,7 +106,12 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
     const { formatValue, formatSats } = useDenomination();
     const [sortField, setSortField] = useState<SortField>("date");
     const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+    const navigate = useNavigate();
     const strings = t();
+
+    const handleRowClick = (month: MonthlyStats) => {
+        navigate(`/month/${month.year}/${month.month.toLowerCase()}`);
+    };
 
     const handleSort = (field: SortField) => {
         if (sortField === field) {
@@ -140,8 +152,8 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
     });
 
     return (
-        <div className="bg-navy-600/60 backdrop-blur-sm border border-text-muted/20 rounded-2xl overflow-hidden stat-glow">
-            <div className="p-6 border-b border-text-muted/20">
+        <div className="bg-navy-600/60 backdrop-blur-sm border border-navy-400/50 rounded-2xl overflow-hidden stat-glow">
+            <div className="p-6 border-b border-navy-400/30">
                 <h3 className="text-lg font-semibold text-text-primary">
                     {strings.table.monthlyBreakdown}
                 </h3>
@@ -158,7 +170,7 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
                         <col className="w-[20%]" />
                     </colgroup>
                     <thead>
-                        <tr className="bg-text-muted/10">
+                        <tr className="bg-navy-500/50">
                             <SortHeader
                                 label={strings.table.month}
                                 field="date"
@@ -205,22 +217,24 @@ export default function MonthlyTable({ data }: MonthlyTableProps) {
                         </tr>
                     </thead>
                     <tbody>
-                        {sortedData.map((month, index) => {
+                        {sortedData.map((month) => {
                             const isCurrent = isCurrentMonth(
                                 month.month,
                                 month.year,
                             );
-                            const isEven = index % 2 === 0;
                             return (
                                 <tr
                                     key={`${month.month}-${month.year}`}
-                                    className={`border-t border-text-muted/10 hover:bg-boltz-primary/5 transition-colors
-                    ${isCurrent ? "bg-text-muted/5" : isEven ? "bg-text-muted/[0.02]" : ""}`}>
+                                    onClick={() => handleRowClick(month)}
+                                    className={`border-t border-navy-400/20 hover:bg-white/5 transition-colors cursor-pointer group`}>
                                     <td className="px-6 py-4">
-                                        <span
-                                            className={`font-medium ${isCurrent ? "text-text-muted" : "text-text-primary"}`}>
-                                            {month.month} {month.year}
-                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <span
+                                                className={`font-medium ${isCurrent ? "text-text-muted" : "text-text-primary"}`}>
+                                                {month.month} {month.year}
+                                            </span>
+                                            <ChevronRight className="w-4 h-4 text-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <span

@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import MonthlyTable from "../components/MonthlyTable";
@@ -15,6 +16,13 @@ const mockData: MonthlyStats[] = [
         avgSwapSize: 100000,
         volumeChange: 5,
         swapChange: 10,
+        pairVolume: {},
+        pairTrades: {},
+        failureRates: {
+            submarine: 0,
+            reverse: 0,
+            chain: 0,
+        },
     },
     {
         month: "Dec",
@@ -24,6 +32,13 @@ const mockData: MonthlyStats[] = [
         avgSwapSize: 100000,
         volumeChange: 50,
         swapChange: 50,
+        pairVolume: {},
+        pairTrades: {},
+        failureRates: {
+            submarine: 0,
+            reverse: 0,
+            chain: 0,
+        },
     },
     {
         month: "Jan",
@@ -33,14 +48,23 @@ const mockData: MonthlyStats[] = [
         avgSwapSize: 100000,
         volumeChange: 33.3,
         swapChange: 33.3,
+        pairVolume: {},
+        pairTrades: {},
+        failureRates: {
+            submarine: 0,
+            reverse: 0,
+            chain: 0,
+        },
     },
 ];
 
 function renderWithProvider(data: MonthlyStats[] = mockData) {
     return render(
-        <DenominationProvider>
-            <MonthlyTable data={data} />
-        </DenominationProvider>,
+        <MemoryRouter>
+            <DenominationProvider>
+                <MonthlyTable data={data} />
+            </DenominationProvider>
+        </MemoryRouter>,
     );
 }
 
@@ -116,7 +140,8 @@ describe("MonthlyTable - current month highlighting", () => {
         renderWithProvider();
         const rows = screen.getAllByRole("row");
         const janRow = rows.find((row) => within(row).queryByText("Jan 2026"));
-        expect(janRow).toHaveClass("bg-text-muted/5");
+        expect(janRow).toBeInTheDocument();
+        expect(janRow).toHaveClass("hover:bg-white/5");
     });
 
     it("styles current month text as muted", () => {

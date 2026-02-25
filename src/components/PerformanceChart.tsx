@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import {
     Area,
     AreaChart,
@@ -12,12 +13,13 @@ import {
 import { Denomination, useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
 import { MonthlyStats } from "../utils/boltzApi";
+import { CHART_COLORS } from "../utils/colors";
 import { isCurrentMonth } from "../utils/date";
 
 interface PerformanceChartProps {
     data: MonthlyStats[];
     dataKey: "volumeBtc" | "swapCount" | "avgSwapSize";
-    title: string;
+    title: ReactNode;
     color?: string;
 }
 
@@ -59,7 +61,7 @@ function CustomTooltip({
     };
 
     const getChangeValue = () => {
-        if (dataKey === "avgSwapSize") return undefined;
+        if (dataKey === "avgSwapSize") return null;
         return dataKey === "volumeBtc" ? data.volumeChange : data.swapChange;
     };
 
@@ -67,7 +69,7 @@ function CustomTooltip({
 
     const getChangeColorClass = () => {
         if (isCurrent) return "text-text-muted";
-        return change !== undefined && change >= 0
+        return change !== undefined && change !== null && change >= 0
             ? "text-boltz-primary"
             : "text-red-400";
     };
@@ -82,7 +84,7 @@ function CustomTooltip({
                     className={`font-semibold mono-nums ${isCurrent ? "text-text-muted" : "text-text-primary"}`}>
                     {getFormattedValue()}
                 </p>
-                {change !== undefined && (
+                {change !== undefined && change !== null && (
                     <p className={`text-sm ${getChangeColorClass()}`}>
                         {change >= 0 ? "+" : ""}
                         {change.toFixed(1)}% {strings.common.fromPrev}
@@ -97,7 +99,7 @@ export default function PerformanceChart({
     data,
     dataKey,
     title,
-    color = "#e8cb2b",
+    color = CHART_COLORS.primary,
 }: PerformanceChartProps) {
     const { denomination, formatValue, formatSats } = useDenomination();
 
@@ -201,29 +203,29 @@ export default function PerformanceChart({
                                 y2="1">
                                 <stop
                                     offset="5%"
-                                    stopColor="#727e8c"
+                                    stopColor={CHART_COLORS.axisTick}
                                     stopOpacity={0.2}
                                 />
                                 <stop
                                     offset="95%"
-                                    stopColor="#727e8c"
+                                    stopColor={CHART_COLORS.axisTick}
                                     stopOpacity={0}
                                 />
                             </linearGradient>
                         </defs>
                         <CartesianGrid
                             strokeDasharray="3 3"
-                            stroke="#1e2d3c"
+                            stroke={CHART_COLORS.grid}
                             vertical={false}
                         />
                         <XAxis
                             dataKey="label"
-                            tick={{ fill: "#727e8c", fontSize: 12 }}
+                            tick={{ fill: CHART_COLORS.axisTick, fontSize: 12 }}
                             tickLine={false}
-                            axisLine={{ stroke: "#1e2d3c" }}
+                            axisLine={{ stroke: CHART_COLORS.grid }}
                         />
                         <YAxis
-                            tick={{ fill: "#727e8c", fontSize: 12 }}
+                            tick={{ fill: CHART_COLORS.axisTick, fontSize: 12 }}
                             tickLine={false}
                             axisLine={false}
                             tickFormatter={formatYAxis}
@@ -247,7 +249,7 @@ export default function PerformanceChart({
                             activeDot={{
                                 fill: color,
                                 strokeWidth: 2,
-                                stroke: "#091625",
+                                stroke: CHART_COLORS.activeDotStroke,
                                 r: 6,
                             }}
                             connectNulls={false}
@@ -256,7 +258,7 @@ export default function PerformanceChart({
                             <Area
                                 type="monotone"
                                 dataKey="dashedValue"
-                                stroke="#727e8c"
+                                stroke={CHART_COLORS.axisTick}
                                 strokeWidth={2}
                                 strokeDasharray="5 5"
                                 fill={`url(#${dashedGradientId})`}
@@ -275,7 +277,7 @@ export default function PerformanceChart({
                                             cx={props.cx}
                                             cy={props.cy}
                                             r={4}
-                                            fill="#727e8c"
+                                            fill={CHART_COLORS.axisTick}
                                         />
                                     );
                                 }}
@@ -296,8 +298,10 @@ export default function PerformanceChart({
                                             cx={props.cx}
                                             cy={props.cy}
                                             r={6}
-                                            fill="#727e8c"
-                                            stroke="#091625"
+                                            fill={CHART_COLORS.axisTick}
+                                            stroke={
+                                                CHART_COLORS.activeDotStroke
+                                            }
                                             strokeWidth={2}
                                         />
                                     );

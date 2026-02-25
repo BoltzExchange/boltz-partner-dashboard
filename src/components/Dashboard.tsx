@@ -16,10 +16,13 @@ import {
     fetchReferralId,
     fetchReferralStatsAuthenticated,
 } from "../utils/boltzApi";
+import { CHART_COLORS, SWAP_TYPE_COLORS } from "../utils/colors";
 import DenominationToggle from "./DenominationToggle";
+import FailureRateChart from "./FailureRateChart";
 import Footer from "./Footer";
 import LoadingSpinner from "./LoadingSpinner";
 import MonthlyTable from "./MonthlyTable";
+import PairVolumeChart from "./PairVolumeChart";
 import PerformanceChart from "./PerformanceChart";
 import StatsCard from "./StatsCard";
 
@@ -32,6 +35,15 @@ export default function Dashboard() {
     const [error, setError] = useState<string | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const strings = t();
+    const unitLabel =
+        denomination === Denomination.BTC
+            ? strings.common.inBtc
+            : strings.common.inSats;
+    const withUnitSuffix = (label: string) => (
+        <>
+            {label} <span className="text-text-muted">({unitLabel})</span>
+        </>
+    );
 
     const loadStats = async (showRefreshIndicator = false) => {
         if (!partner) return;
@@ -154,10 +166,9 @@ export default function Dashboard() {
                         icon={
                             <TrendingUp
                                 className="w-5 h-5"
-                                style={{ color: "#e8cb2b" }}
+                                style={{ color: CHART_COLORS.primary }}
                             />
                         }
-                        iconColor="#e8cb2b"
                         delay={0}
                     />
                     <StatsCard
@@ -167,10 +178,9 @@ export default function Dashboard() {
                         icon={
                             <BarChart3
                                 className="w-5 h-5"
-                                style={{ color: "#f7931a" }}
+                                style={{ color: SWAP_TYPE_COLORS.reverse }}
                             />
                         }
-                        iconColor="#f7931a"
                         delay={50}
                     />
                     <StatsCard
@@ -180,10 +190,9 @@ export default function Dashboard() {
                         icon={
                             <Coins
                                 className="w-5 h-5"
-                                style={{ color: "#4fadc2" }}
+                                style={{ color: SWAP_TYPE_COLORS.submarine }}
                             />
                         }
-                        iconColor="#4fadc2"
                         delay={100}
                     />
                 </div>
@@ -194,22 +203,45 @@ export default function Dashboard() {
                             <PerformanceChart
                                 data={stats.monthly}
                                 dataKey="volumeBtc"
-                                title={`${strings.dashboard.volumeOverTime} (${denomination === Denomination.BTC ? strings.common.btc : strings.common.sats})`}
-                                color="#e8cb2b"
+                                title={withUnitSuffix(
+                                    strings.dashboard.volumeOverTime,
+                                )}
+                                color={CHART_COLORS.primary}
                             />
                         </div>
+
+                        {/* Pair Volume Chart */}
+                        <div className="mb-6">
+                            <PairVolumeChart
+                                data={stats.monthly}
+                                title={withUnitSuffix(
+                                    strings.dashboard.volumeByPair,
+                                )}
+                            />
+                        </div>
+
+                        {/* Failure Rate Chart */}
+                        <div className="mb-6">
+                            <FailureRateChart
+                                data={stats.monthly}
+                                title={strings.dashboard.swapFailureRates}
+                            />
+                        </div>
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                             <PerformanceChart
                                 data={stats.monthly}
                                 dataKey="swapCount"
                                 title={strings.dashboard.swapCountOverTime}
-                                color="#f7931a"
+                                color={SWAP_TYPE_COLORS.reverse}
                             />
                             <PerformanceChart
                                 data={stats.monthly}
                                 dataKey="avgSwapSize"
-                                title={`${strings.dashboard.avgSwapSizeOverTime} (${denomination === Denomination.BTC ? strings.common.btc : strings.common.sats})`}
-                                color="#4fadc2"
+                                title={withUnitSuffix(
+                                    strings.dashboard.avgSwapSizeOverTime,
+                                )}
+                                color={SWAP_TYPE_COLORS.submarine}
                             />
                         </div>
                     </>

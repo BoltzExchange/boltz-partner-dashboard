@@ -8,7 +8,6 @@ interface StatsCardProps {
     change?: number;
     showChange?: boolean;
     icon: ReactNode;
-    iconColor?: string;
     delay?: number;
 }
 
@@ -19,7 +18,6 @@ export default function StatsCard({
     change,
     showChange = true,
     icon,
-    iconColor = "#e8cb2b",
     delay = 0,
 }: StatsCardProps) {
     const hasPositiveChange = change !== undefined && change > 0;
@@ -31,15 +29,7 @@ export default function StatsCard({
                  stat-glow animate-slide-up"
             style={{ animationDelay: `${delay}ms` }}>
             <div className="flex items-start justify-between mb-4">
-                <div
-                    className="p-2.5 rounded-xl"
-                    style={{
-                        backgroundColor: `${iconColor}15`,
-                        borderWidth: "1px",
-                        borderColor: `${iconColor}30`,
-                    }}>
-                    {icon}
-                </div>
+                <div>{icon}</div>
                 {showChange && change !== undefined && (
                     <div
                         className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg
