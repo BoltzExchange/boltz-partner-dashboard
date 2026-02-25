@@ -12,7 +12,7 @@ import {
 
 import { t } from "../i18n";
 import { MonthlyStats } from "../utils/boltzApi";
-import { CHART_COLORS, FAILURE_RATE_COLORS } from "../utils/chartTheme";
+import { CHART_COLORS, FAILURE_RATE_COLORS } from "../utils/colors";
 import { getSwapTypeLabelMap } from "../utils/swapTypes";
 
 interface FailureRateChartProps {

@@ -16,7 +16,7 @@ import {
     fetchReferralId,
     fetchReferralStatsAuthenticated,
 } from "../utils/boltzApi";
-import { CHART_COLORS, SWAP_TYPE_COLORS } from "../utils/chartTheme";
+import { CHART_COLORS, SWAP_TYPE_COLORS } from "../utils/colors";
 import DenominationToggle from "./DenominationToggle";
 import FailureRateChart from "./FailureRateChart";
 import Footer from "./Footer";

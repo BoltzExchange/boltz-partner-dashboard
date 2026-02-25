@@ -13,7 +13,7 @@ import {
 import { Denomination, useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
 import { MonthlyStats } from "../utils/boltzApi";
-import { CHART_COLORS } from "../utils/chartTheme";
+import { CHART_COLORS } from "../utils/colors";
 import { isCurrentMonth } from "../utils/date";
 
 interface PerformanceChartProps {

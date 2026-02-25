@@ -15,8 +15,8 @@ import {
 import { Denomination, useDenomination } from "../contexts/DenominationContext";
 import { t } from "../i18n";
 import { MonthlyStats } from "../utils/boltzApi";
-import { CHART_COLORS } from "../utils/chartTheme";
-import { getPairColor } from "../utils/pairColors";
+import { CHART_COLORS } from "../utils/colors";
+import { getPairColor } from "../utils/colors";
 
 interface PairVolumeChartProps {
     data: MonthlyStats[];
@@ -338,8 +338,8 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                             data={chartData}
                             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                             <defs>
-                                {pairs.map((pair, index) => {
-                                    const color = getPairColor(pair, index);
+                                {pairs.map((pair) => {
+                                    const color = getPairColor(pair);
                                     return (
                                         <linearGradient
                                             key={pair}
@@ -401,8 +401,8 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                                     </span>
                                 )}
                             />
-                            {pairs.map((pair, index) => {
-                                const color = getPairColor(pair, index);
+                            {pairs.map((pair) => {
+                                const color = getPairColor(pair);
                                 const gradientId = `gradient-${pair.replace(/[^a-zA-Z0-9]/g, "-")}`;
                                 return (
                                     <Area
@@ -427,8 +427,8 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {pairs.map((pair, index) => {
-                        const color = getPairColor(pair, index);
+                    {pairs.map((pair) => {
+                        const color = getPairColor(pair);
                         const singleChartData = data.map((item) => ({
                             label: `${item.month} ${item.year}`,
                             volume:

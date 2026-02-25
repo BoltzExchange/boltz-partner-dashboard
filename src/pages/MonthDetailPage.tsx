@@ -24,8 +24,8 @@ import {
     CHART_COLORS,
     FAILURE_RATE_COLORS,
     SWAP_TYPE_COLORS,
-} from "../utils/chartTheme";
-import { getPairColor } from "../utils/pairColors";
+} from "../utils/colors";
+import { getPairColor } from "../utils/colors";
 
 interface PairStats {
     name: string;
@@ -440,24 +440,21 @@ export default function MonthDetailPage() {
                                                 paddingAngle={2}
                                                 stroke="none"
                                                 dataKey="percentage">
-                                                {pairStats.map(
-                                                    (pair, index) => (
-                                                        <Cell
-                                                            key={`cell-${pair.name}`}
-                                                            fill={getPairColor(
-                                                                pair.name,
-                                                                index,
-                                                            )}
-                                                        />
-                                                    ),
-                                                )}
+                                                {pairStats.map((pair) => (
+                                                    <Cell
+                                                        key={`cell-${pair.name}`}
+                                                        fill={getPairColor(
+                                                            pair.name,
+                                                        )}
+                                                    />
+                                                ))}
                                             </Pie>
                                             <Tooltip content={<PieTooltip />} />
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>
                                 <div className="flex-1 space-y-2">
-                                    {pairStats.map((pair, index) => (
+                                    {pairStats.map((pair) => (
                                         <div
                                             key={pair.name}
                                             className="flex items-center gap-3">
@@ -465,10 +462,7 @@ export default function MonthDetailPage() {
                                                 className="w-3 h-3 rounded-full"
                                                 style={{
                                                     backgroundColor:
-                                                        getPairColor(
-                                                            pair.name,
-                                                            index,
-                                                        ),
+                                                        getPairColor(pair.name),
                                                 }}
                                             />
                                             <span className="text-text-secondary text-sm flex-1">
@@ -543,7 +537,7 @@ export default function MonthDetailPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {sortedPairStats.map((pair, index) => (
+                                {sortedPairStats.map((pair) => (
                                     <tr
                                         key={pair.name}
                                         className="border-t border-navy-400/20 hover:bg-white/5 transition-colors">
@@ -555,7 +549,6 @@ export default function MonthDetailPage() {
                                                         backgroundColor:
                                                             getPairColor(
                                                                 pair.name,
-                                                                index,
                                                             ),
                                                     }}
                                                 />

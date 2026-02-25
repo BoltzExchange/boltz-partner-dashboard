@@ -1,33 +1,12 @@
-/** @type {import('tailwindcss').Config} */
+import type { Config } from "tailwindcss";
+
+import { colors } from "./src/utils/colors";
+
 export default {
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
     theme: {
         extend: {
-            colors: {
-                boltz: {
-                    primary: "#e8cb2b",
-                    "primary-light": "#fee86b",
-                    link: "#4fadc2",
-                    "link-hover": "#70cde2",
-                },
-                navy: {
-                    50: "#d0d4d9",
-                    100: "#a1a9b2",
-                    200: "#727e8c",
-                    300: "#1e2d3c",
-                    400: "#17222e",
-                    500: "#12253a",
-                    600: "#0f1f30",
-                    700: "#091625",
-                    800: "#09141f",
-                    900: "#081E36",
-                },
-                text: {
-                    primary: "#d7dee4",
-                    secondary: "#a1a9b2",
-                    muted: "#727e8c",
-                },
-            },
+            colors,
             fontFamily: {
                 sans: ['"Noto Sans"', "system-ui", "sans-serif"],
                 mono: ['"Noto Mono"', "monospace"],
@@ -59,4 +38,4 @@ export default {
         },
     },
     plugins: [],
-};
+} satisfies Config;

@@ -1,4 +1,4 @@
-import { SWAP_TYPE_COLORS } from "./chartTheme";
+import { SWAP_TYPE_COLORS } from "./colors";
 
 export type SwapType = keyof typeof SWAP_TYPE_COLORS;
 
