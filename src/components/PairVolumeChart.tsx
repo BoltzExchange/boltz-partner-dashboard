@@ -31,14 +31,14 @@ interface ChartDataPoint {
 }
 
 interface CustomTooltipProps extends TooltipProps<number, string> {
-    formatValue: (btc: number) => string;
+    formatChartValue: (value: number) => string;
 }
 
 function CustomTooltip({
     active,
     payload,
     label,
-    formatValue,
+    formatChartValue,
 }: CustomTooltipProps) {
     const strings = t();
     if (!active || !payload || !payload.length) return null;
@@ -75,7 +75,7 @@ function CustomTooltip({
                             </div>
                             <div className="text-right">
                                 <span className="text-text-primary font-semibold mono-nums">
-                                    {formatValue(entry.value || 0)}
+                                    {formatChartValue(entry.value || 0)}
                                 </span>
                                 <span className="text-text-muted text-xs ml-2">
                                     ({percentage.toFixed(1)}%)
@@ -91,7 +91,7 @@ function CustomTooltip({
                         {strings.common.total}
                     </span>
                     <span className="text-boltz-primary font-semibold mono-nums">
-                        {formatValue(total)}
+                        {formatChartValue(total)}
                     </span>
                 </div>
             </div>
@@ -103,7 +103,7 @@ interface SinglePairChartProps {
     pair: string;
     data: Array<{ label: string; volume: number }>;
     color: string;
-    formatValue: (btc: number) => string;
+    formatChartValue: (value: number) => string;
     formatYAxis: (value: number) => string;
 }
 
@@ -112,7 +112,7 @@ function SinglePairTooltip({
     payload,
     label,
     pair,
-    formatValue,
+    formatChartValue,
 }: CustomTooltipProps & { pair: string }) {
     if (!active || !payload || !payload.length) return null;
     const value = payload[0].value || 0;
@@ -123,7 +123,7 @@ function SinglePairTooltip({
             <div className="flex items-center justify-between gap-4">
                 <span className="text-text-secondary text-sm">{pair}</span>
                 <span className="font-semibold mono-nums text-text-primary">
-                    {formatValue(value)}
+                    {formatChartValue(value)}
                 </span>
             </div>
         </div>
@@ -134,7 +134,7 @@ function SinglePairChart({
     pair,
     data,
     color,
-    formatValue,
+    formatChartValue,
     formatYAxis,
 }: SinglePairChartProps) {
     const gradientId = `gradient-${pair.replace(/[^a-zA-Z0-9]/g, "-")}`;
@@ -196,7 +196,7 @@ function SinglePairChart({
                             content={
                                 <SinglePairTooltip
                                     pair={pair}
-                                    formatValue={formatValue}
+                                    formatChartValue={formatChartValue}
                                 />
                             }
                         />
@@ -222,9 +222,16 @@ function SinglePairChart({
 }
 
 export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
-    const { denomination, formatValue } = useDenomination();
+    const { denomination } = useDenomination();
     const strings = t();
     const [view, setView] = useState<"combined" | "separate">("combined");
+
+    const formatChartValue = (value: number): string => {
+        if (denomination === Denomination.SAT) {
+            return `${Math.round(value).toLocaleString()} sats`;
+        }
+        return `${value.toFixed(8)} BTC`;
+    };
 
     // Collect all unique pairs from the data - filter out pairs with no data
     const allPairs = new Set<string>();
@@ -387,7 +394,9 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                             />
                             <Tooltip
                                 content={
-                                    <CustomTooltip formatValue={formatValue} />
+                                    <CustomTooltip
+                                        formatChartValue={formatChartValue}
+                                    />
                                 }
                             />
                             <Legend
@@ -443,7 +452,7 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                                 pair={pair}
                                 data={singleChartData}
                                 color={color}
-                                formatValue={formatValue}
+                                formatChartValue={formatChartValue}
                                 formatYAxis={separateFormatYAxis}
                             />
                         );
