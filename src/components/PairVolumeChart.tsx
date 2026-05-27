@@ -1,5 +1,5 @@
 import { Layers, LayoutGrid } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { Fragment, ReactNode, useState } from "react";
 import {
     Area,
     AreaChart,
@@ -7,7 +7,8 @@ import {
     Legend,
     ResponsiveContainer,
     Tooltip,
-    TooltipProps,
+    TooltipContentProps,
+    TooltipPayloadEntry,
     XAxis,
     YAxis,
 } from "recharts";
@@ -17,6 +18,7 @@ import { t } from "../i18n";
 import { MonthlyStats } from "../utils/boltzApi";
 import { CHART_COLORS } from "../utils/colors";
 import { getPairColor } from "../utils/colors";
+import { isCurrentMonth } from "../utils/date";
 
 interface PairVolumeChartProps {
     data: MonthlyStats[];
@@ -27,39 +29,75 @@ interface ChartDataPoint {
     label: string;
     month: string;
     year: number;
-    [pair: string]: string | number;
+    isCurrentMonth?: boolean;
+    [pair: string]: string | number | boolean | null | undefined;
 }
 
-interface CustomTooltipProps extends TooltipProps<number, string> {
+interface CustomTooltipProps extends Partial<
+    TooltipContentProps<number, string>
+> {
+    pairs?: string[];
     formatChartValue: (value: number) => string;
+}
+
+interface PairChartDataPoint {
+    label: string;
+    volume: number;
+    solidValue: number | null;
+    dashedValue: number | null;
+    isCurrentMonth?: boolean;
+}
+
+function getTooltipNumber(entry: TooltipPayloadEntry): number {
+    return typeof entry.value === "number" ? entry.value : 0;
+}
+
+function getChartNumber(value: unknown): number {
+    return typeof value === "number" ? value : 0;
+}
+
+function getSolidKey(pair: string): string {
+    return `${pair}__solid`;
+}
+
+function getDashedKey(pair: string): string {
+    return `${pair}__current`;
 }
 
 function CustomTooltip({
     active,
     payload,
     label,
+    pairs,
     formatChartValue,
 }: CustomTooltipProps) {
     const strings = t();
     if (!active || !payload || !payload.length) return null;
 
-    // Filter out null/undefined values and sort by value descending
-    const validPayload = payload
-        .filter((p) => p.value !== null && p.value !== undefined && p.value > 0)
-        .sort((a, b) => (b.value || 0) - (a.value || 0));
+    const data = payload[0].payload as ChartDataPoint | undefined;
+    const isCurrent = data?.isCurrentMonth === true;
+
+    const validPayload = (pairs || [])
+        .map((pair) => ({
+            pair,
+            value: data ? getChartNumber(data[pair]) : 0,
+            color: isCurrent ? CHART_COLORS.axisTick : getPairColor(pair),
+        }))
+        .filter((entry) => entry.value > 0)
+        .sort((a, b) => b.value - a.value);
 
     if (validPayload.length === 0) return null;
 
-    const total = validPayload.reduce((sum, p) => sum + (p.value || 0), 0);
+    const total = validPayload.reduce((sum, p) => sum + p.value, 0);
+    const valueClass = isCurrent ? "text-text-muted" : "text-text-primary";
 
     return (
         <div className="bg-navy-700 border border-navy-400 rounded-xl p-4 shadow-xl">
             <p className="text-text-secondary text-sm mb-2">{label}</p>
             <div className="space-y-1 max-h-48 overflow-y-auto">
                 {validPayload.map((entry, index) => {
-                    const pair = entry.dataKey as string;
                     const percentage =
-                        total > 0 ? ((entry.value || 0) / total) * 100 : 0;
+                        total > 0 ? (entry.value / total) * 100 : 0;
                     return (
                         <div
                             key={index}
@@ -70,12 +108,13 @@ function CustomTooltip({
                                     style={{ backgroundColor: entry.color }}
                                 />
                                 <span className="text-text-primary text-sm">
-                                    {pair}
+                                    {entry.pair}
                                 </span>
                             </div>
                             <div className="text-right">
-                                <span className="text-text-primary font-semibold mono-nums">
-                                    {formatChartValue(entry.value || 0)}
+                                <span
+                                    className={`${valueClass} font-semibold mono-nums`}>
+                                    {formatChartValue(entry.value)}
                                 </span>
                                 <span className="text-text-muted text-xs ml-2">
                                     ({percentage.toFixed(1)}%)
@@ -90,7 +129,7 @@ function CustomTooltip({
                     <span className="text-text-secondary text-sm">
                         {strings.common.total}
                     </span>
-                    <span className="text-boltz-primary font-semibold mono-nums">
+                    <span className={`${valueClass} font-semibold mono-nums`}>
                         {formatChartValue(total)}
                     </span>
                 </div>
@@ -101,7 +140,7 @@ function CustomTooltip({
 
 interface SinglePairChartProps {
     pair: string;
-    data: Array<{ label: string; volume: number }>;
+    data: PairChartDataPoint[];
     color: string;
     formatChartValue: (value: number) => string;
     formatYAxis: (value: number) => string;
@@ -115,14 +154,18 @@ function SinglePairTooltip({
     formatChartValue,
 }: CustomTooltipProps & { pair: string }) {
     if (!active || !payload || !payload.length) return null;
-    const value = payload[0].value || 0;
+    const data = payload[0].payload as PairChartDataPoint | undefined;
+    const value = data?.volume ?? getTooltipNumber(payload[0]);
+    const valueClass = data?.isCurrentMonth
+        ? "text-text-muted"
+        : "text-text-primary";
 
     return (
         <div className="bg-navy-700 border border-navy-400 rounded-xl p-3 shadow-xl">
             <p className="text-text-secondary text-sm mb-1">{label}</p>
             <div className="flex items-center justify-between gap-4">
                 <span className="text-text-secondary text-sm">{pair}</span>
-                <span className="font-semibold mono-nums text-text-primary">
+                <span className={`font-semibold mono-nums ${valueClass}`}>
                     {formatChartValue(value)}
                 </span>
             </div>
@@ -138,6 +181,8 @@ function SinglePairChart({
     formatYAxis,
 }: SinglePairChartProps) {
     const gradientId = `gradient-${pair.replace(/[^a-zA-Z0-9]/g, "-")}`;
+    const dashedGradientId = `${gradientId}-current`;
+    const hasCurrentMonth = data.some((item) => item.isCurrentMonth);
 
     return (
         <div className="bg-navy-500/50 border border-navy-400/30 rounded-xl p-4">
@@ -173,6 +218,23 @@ function SinglePairChart({
                                     stopOpacity={0}
                                 />
                             </linearGradient>
+                            <linearGradient
+                                id={dashedGradientId}
+                                x1="0"
+                                y1="0"
+                                x2="0"
+                                y2="1">
+                                <stop
+                                    offset="5%"
+                                    stopColor={CHART_COLORS.axisTick}
+                                    stopOpacity={0.2}
+                                />
+                                <stop
+                                    offset="95%"
+                                    stopColor={CHART_COLORS.axisTick}
+                                    stopOpacity={0}
+                                />
+                            </linearGradient>
                         </defs>
                         <CartesianGrid
                             strokeDasharray="3 3"
@@ -202,7 +264,7 @@ function SinglePairChart({
                         />
                         <Area
                             type="monotone"
-                            dataKey="volume"
+                            dataKey="solidValue"
                             stroke={color}
                             strokeWidth={2}
                             fill={`url(#${gradientId})`}
@@ -213,7 +275,47 @@ function SinglePairChart({
                                 stroke: CHART_COLORS.activeDotStroke,
                                 r: 4,
                             }}
+                            connectNulls={false}
                         />
+                        {hasCurrentMonth && (
+                            <Area
+                                type="monotone"
+                                dataKey="dashedValue"
+                                stroke={CHART_COLORS.axisTick}
+                                strokeWidth={2}
+                                strokeDasharray="5 5"
+                                fill={`url(#${dashedGradientId})`}
+                                dot={false}
+                                activeDot={(props: {
+                                    cx?: number;
+                                    cy?: number;
+                                    payload?: { isCurrentMonth?: boolean };
+                                }) => {
+                                    if (!props.payload?.isCurrentMonth) {
+                                        return (
+                                            <g
+                                                key={`activedot-hidden-${props.cx}`}
+                                            />
+                                        );
+                                    }
+
+                                    return (
+                                        <circle
+                                            key={`activedot-current-${props.cx}`}
+                                            cx={props.cx}
+                                            cy={props.cy}
+                                            r={4}
+                                            fill={CHART_COLORS.axisTick}
+                                            stroke={
+                                                CHART_COLORS.activeDotStroke
+                                            }
+                                            strokeWidth={2}
+                                        />
+                                    );
+                                }}
+                                connectNulls={false}
+                            />
+                        )}
                     </AreaChart>
                 </ResponsiveContainer>
             </div>
@@ -243,6 +345,10 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
         });
     });
     const pairs = Array.from(allPairs).sort();
+    const currentMonthIndex = data.findIndex((item) =>
+        isCurrentMonth(item.month, item.year),
+    );
+    const hasCurrentMonth = currentMonthIndex >= 0;
 
     const formatYAxis = (value: number) => {
         if (denomination === Denomination.SAT) {
@@ -282,19 +388,32 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
     }
 
     // Transform data for combined chart
-    const chartData: ChartDataPoint[] = data.map((item) => {
+    const chartData: ChartDataPoint[] = data.map((item, index) => {
         const point: ChartDataPoint = {
             label: `${item.month} ${item.year}`,
             month: item.month,
             year: item.year,
+            isCurrentMonth: isCurrentMonth(item.month, item.year),
         };
 
         pairs.forEach((pair) => {
             const volume = item.pairVolume[pair] || 0;
-            point[pair] =
+            const displayVolume =
                 denomination === Denomination.SAT
                     ? volume * 100_000_000
                     : volume;
+            const isPrevToCurrent =
+                hasCurrentMonth && index === currentMonthIndex - 1;
+
+            point[pair] = displayVolume;
+            point[getSolidKey(pair)] =
+                !hasCurrentMonth || index < currentMonthIndex
+                    ? displayVolume
+                    : isPrevToCurrent
+                      ? displayVolume
+                      : null;
+            point[getDashedKey(pair)] =
+                point.isCurrentMonth || isPrevToCurrent ? displayVolume : null;
         });
 
         return point;
@@ -348,24 +467,46 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                                 {pairs.map((pair) => {
                                     const color = getPairColor(pair);
                                     return (
-                                        <linearGradient
-                                            key={pair}
-                                            id={`gradient-${pair.replace(/[^a-zA-Z0-9]/g, "-")}`}
-                                            x1="0"
-                                            y1="0"
-                                            x2="0"
-                                            y2="1">
-                                            <stop
-                                                offset="5%"
-                                                stopColor={color}
-                                                stopOpacity={0.3}
-                                            />
-                                            <stop
-                                                offset="95%"
-                                                stopColor={color}
-                                                stopOpacity={0}
-                                            />
-                                        </linearGradient>
+                                        <Fragment key={pair}>
+                                            <linearGradient
+                                                id={`gradient-${pair.replace(/[^a-zA-Z0-9]/g, "-")}`}
+                                                x1="0"
+                                                y1="0"
+                                                x2="0"
+                                                y2="1">
+                                                <stop
+                                                    offset="5%"
+                                                    stopColor={color}
+                                                    stopOpacity={0.3}
+                                                />
+                                                <stop
+                                                    offset="95%"
+                                                    stopColor={color}
+                                                    stopOpacity={0}
+                                                />
+                                            </linearGradient>
+                                            <linearGradient
+                                                id={`gradient-current-${pair.replace(/[^a-zA-Z0-9]/g, "-")}`}
+                                                x1="0"
+                                                y1="0"
+                                                x2="0"
+                                                y2="1">
+                                                <stop
+                                                    offset="5%"
+                                                    stopColor={
+                                                        CHART_COLORS.axisTick
+                                                    }
+                                                    stopOpacity={0.2}
+                                                />
+                                                <stop
+                                                    offset="95%"
+                                                    stopColor={
+                                                        CHART_COLORS.axisTick
+                                                    }
+                                                    stopOpacity={0}
+                                                />
+                                            </linearGradient>
+                                        </Fragment>
                                     );
                                 })}
                             </defs>
@@ -395,6 +536,7 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                             <Tooltip
                                 content={
                                     <CustomTooltip
+                                        pairs={pairs}
                                         formatChartValue={formatChartValue}
                                     />
                                 }
@@ -413,22 +555,73 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                             {pairs.map((pair) => {
                                 const color = getPairColor(pair);
                                 const gradientId = `gradient-${pair.replace(/[^a-zA-Z0-9]/g, "-")}`;
+                                const dashedGradientId = `gradient-current-${pair.replace(/[^a-zA-Z0-9]/g, "-")}`;
                                 return (
-                                    <Area
-                                        key={pair}
-                                        type="monotone"
-                                        dataKey={pair}
-                                        stroke={color}
-                                        strokeWidth={2}
-                                        fill={`url(#${gradientId})`}
-                                        dot={false}
-                                        activeDot={{
-                                            fill: color,
-                                            strokeWidth: 2,
-                                            stroke: CHART_COLORS.activeDotStroke,
-                                            r: 5,
-                                        }}
-                                    />
+                                    <Fragment key={pair}>
+                                        <Area
+                                            type="monotone"
+                                            dataKey={getSolidKey(pair)}
+                                            name={pair}
+                                            stroke={color}
+                                            strokeWidth={2}
+                                            fill={`url(#${gradientId})`}
+                                            dot={false}
+                                            activeDot={{
+                                                fill: color,
+                                                strokeWidth: 2,
+                                                stroke: CHART_COLORS.activeDotStroke,
+                                                r: 5,
+                                            }}
+                                            connectNulls={false}
+                                        />
+                                        {hasCurrentMonth && (
+                                            <Area
+                                                type="monotone"
+                                                dataKey={getDashedKey(pair)}
+                                                stroke={CHART_COLORS.axisTick}
+                                                strokeWidth={2}
+                                                strokeDasharray="5 5"
+                                                fill={`url(#${dashedGradientId})`}
+                                                dot={false}
+                                                activeDot={(props: {
+                                                    cx?: number;
+                                                    cy?: number;
+                                                    payload?: {
+                                                        isCurrentMonth?: boolean;
+                                                    };
+                                                }) => {
+                                                    if (
+                                                        !props.payload
+                                                            ?.isCurrentMonth
+                                                    ) {
+                                                        return (
+                                                            <g
+                                                                key={`activedot-hidden-${pair}-${props.cx}`}
+                                                            />
+                                                        );
+                                                    }
+
+                                                    return (
+                                                        <circle
+                                                            key={`activedot-current-${pair}-${props.cx}`}
+                                                            cx={props.cx}
+                                                            cy={props.cy}
+                                                            r={5}
+                                                            fill={
+                                                                CHART_COLORS.axisTick
+                                                            }
+                                                            stroke={
+                                                                CHART_COLORS.activeDotStroke
+                                                            }
+                                                            strokeWidth={2}
+                                                        />
+                                                    );
+                                                }}
+                                                legendType="none"
+                                                connectNulls={false}
+                                            />
+                                        )}
+                                    </Fragment>
                                 );
                             })}
                         </AreaChart>
@@ -438,13 +631,36 @@ export default function PairVolumeChart({ data, title }: PairVolumeChartProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {pairs.map((pair) => {
                         const color = getPairColor(pair);
-                        const singleChartData = data.map((item) => ({
-                            label: `${item.month} ${item.year}`,
-                            volume:
+                        const singleChartData = data.map((item, index) => {
+                            const volume =
                                 denomination === Denomination.SAT
                                     ? (item.pairVolume[pair] || 0) * 100_000_000
-                                    : item.pairVolume[pair] || 0,
-                        }));
+                                    : item.pairVolume[pair] || 0;
+                            const isCurrent = isCurrentMonth(
+                                item.month,
+                                item.year,
+                            );
+                            const isPrevToCurrent =
+                                hasCurrentMonth &&
+                                index === currentMonthIndex - 1;
+
+                            return {
+                                label: `${item.month} ${item.year}`,
+                                volume,
+                                isCurrentMonth: isCurrent,
+                                solidValue:
+                                    !hasCurrentMonth ||
+                                    index < currentMonthIndex
+                                        ? volume
+                                        : isPrevToCurrent
+                                          ? volume
+                                          : null,
+                                dashedValue:
+                                    isCurrent || isPrevToCurrent
+                                        ? volume
+                                        : null,
+                            };
+                        });
 
                         return (
                             <SinglePairChart

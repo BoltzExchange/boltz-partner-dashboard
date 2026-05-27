@@ -5,7 +5,8 @@ import {
     Legend,
     ResponsiveContainer,
     Tooltip,
-    TooltipProps,
+    TooltipContentProps,
+    TooltipPayloadEntry,
     XAxis,
     YAxis,
 } from "recharts";
@@ -29,7 +30,13 @@ interface ChartDataPoint {
     chain: number;
 }
 
-interface CustomTooltipProps extends TooltipProps<number, string> {}
+interface CustomTooltipProps extends Partial<
+    TooltipContentProps<number, string>
+> {}
+
+function getTooltipNumber(entry: TooltipPayloadEntry): number {
+    return typeof entry.value === "number" ? entry.value : 0;
+}
 
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
     const strings = t();
@@ -58,7 +65,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
                                 </span>
                             </div>
                             <span className="text-text-primary font-semibold mono-nums">
-                                {((entry.value || 0) * 100).toFixed(1)}%
+                                {(getTooltipNumber(entry) * 100).toFixed(1)}%
                             </span>
                         </div>
                     );

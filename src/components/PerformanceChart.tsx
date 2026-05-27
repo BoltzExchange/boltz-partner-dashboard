@@ -5,7 +5,7 @@ import {
     CartesianGrid,
     ResponsiveContainer,
     Tooltip,
-    TooltipProps,
+    TooltipContentProps,
     XAxis,
     YAxis,
 } from "recharts";
@@ -23,7 +23,9 @@ interface PerformanceChartProps {
     color?: string;
 }
 
-interface CustomTooltipProps extends TooltipProps<number, string> {
+interface CustomTooltipProps extends Partial<
+    TooltipContentProps<number, string>
+> {
     dataKey: string;
     formatValue: (btc: number) => string;
     formatSats: (sats: number) => string;
@@ -245,7 +247,7 @@ export default function PerformanceChart({
                             stroke={color}
                             strokeWidth={2}
                             fill={`url(#${gradientId})`}
-                            dot={{ fill: color, strokeWidth: 0, r: 4 }}
+                            dot={false}
                             activeDot={{
                                 fill: color,
                                 strokeWidth: 2,
@@ -262,25 +264,7 @@ export default function PerformanceChart({
                                 strokeWidth={2}
                                 strokeDasharray="5 5"
                                 fill={`url(#${dashedGradientId})`}
-                                dot={(props: {
-                                    cx?: number;
-                                    cy?: number;
-                                    payload?: { isCurrentMonth?: boolean };
-                                }) => {
-                                    if (!props.payload?.isCurrentMonth)
-                                        return (
-                                            <g key={`dot-hidden-${props.cx}`} />
-                                        );
-                                    return (
-                                        <circle
-                                            key={`dot-current-${props.cx}`}
-                                            cx={props.cx}
-                                            cy={props.cy}
-                                            r={4}
-                                            fill={CHART_COLORS.axisTick}
-                                        />
-                                    );
-                                }}
+                                dot={false}
                                 activeDot={(props: {
                                     cx?: number;
                                     cy?: number;
